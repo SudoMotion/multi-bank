@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import FieldWrapper from './FieldWrapper';
-import { fieldClassName } from './styles';
+import { fieldClassName, textareaClassName } from './styles';
 import { cn } from './cn';
 
 const Textarea = forwardRef(function Textarea(
@@ -29,7 +29,7 @@ const Textarea = forwardRef(function Textarea(
                 id={id}
                 ref={ref}
                 rows={rows}
-                className={cn(fieldClassName, className)}
+                className={cn(textareaClassName, className)}
             />
         </FieldWrapper>
     );

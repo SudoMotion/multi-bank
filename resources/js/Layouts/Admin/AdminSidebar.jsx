@@ -72,19 +72,6 @@ export default function AdminSidebar({ open, onNavigate }) {
                     </AdminSidebarLink>
                 ))}
             </nav>
-
-            <div className="shrink-0 border-t border-neutral-200 p-4">
-                <Link
-                    href="/"
-                    onClick={onNavigate}
-                    className="flex items-center gap-2 text-sm text-neutral-500 transition-colors hover:text-neutral-800"
-                >
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                    </svg>
-                    Back to site
-                </Link>
-            </div>
         </aside>
     );
 }
