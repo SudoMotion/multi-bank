@@ -1,9 +1,7 @@
 import { forwardRef } from 'react';
 import FieldWrapper from './FieldWrapper';
+import { fieldClassName } from './styles';
 import { cn } from './cn';
-
-const textareaClassName =
-    'block w-full rounded-md border-gray-300 shadow-sm transition focus:border-indigo-500 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-60';
 
 const Textarea = forwardRef(function Textarea(
     {
@@ -31,7 +29,7 @@ const Textarea = forwardRef(function Textarea(
                 id={id}
                 ref={ref}
                 rows={rows}
-                className={cn(textareaClassName, className)}
+                className={cn(fieldClassName, className)}
             />
         </FieldWrapper>
     );

@@ -1,9 +1,10 @@
 import { forwardRef } from 'react';
 import FieldWrapper from './FieldWrapper';
+import { fieldClassName } from './styles';
 import { cn } from './cn';
 
 const fileInputClassName =
-    'block w-full text-sm text-gray-500 file:me-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100';
+    'cursor-pointer px-3 py-2 text-sm text-neutral-500 file:me-4 file:rounded-md file:border-0 file:bg-neutral-100 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-neutral-700 hover:file:bg-neutral-200';
 
 const FileInput = forwardRef(function FileInput(
     {
@@ -31,7 +32,7 @@ const FileInput = forwardRef(function FileInput(
                 id={id}
                 ref={ref}
                 type="file"
-                className={cn(fileInputClassName, className)}
+                className={cn(fieldClassName, fileInputClassName, className)}
             />
             {children}
         </FieldWrapper>

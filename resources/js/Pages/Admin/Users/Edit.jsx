@@ -1,3 +1,4 @@
+import AdminPageHeader from '@/Components/Admin/AdminPageHeader';
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
 import {
     Button,
@@ -27,17 +28,11 @@ export default function Edit({ userId }) {
         <AdminLayout title="Edit User">
             <Head title="Edit User" />
 
-            <div className="mb-6">
-                <Link
-                    href={route('admin.users.index')}
-                    className="text-sm text-indigo-600 hover:text-indigo-800"
-                >
-                    &larr; Back to users
-                </Link>
-                <h2 className="mt-2 text-2xl font-bold text-gray-900">
-                    Edit User #{userId}
-                </h2>
-            </div>
+            <AdminPageHeader
+                title={`Edit User #${userId}`}
+                backHref={route('admin.users.index')}
+                backLabel="Back to users"
+            />
 
             <form onSubmit={submit}>
                 <Card title="User Details">

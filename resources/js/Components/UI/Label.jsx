@@ -12,7 +12,7 @@ export default function Label({
         <label
             htmlFor={htmlFor}
             {...props}
-            className={cn('block text-sm font-medium text-gray-700', className)}
+            className={cn('block text-sm font-medium text-neutral-700', className)}
         >
             {value ?? children}
             {required && <span className="ms-1 text-red-500">*</span>}

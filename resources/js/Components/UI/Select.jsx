@@ -1,9 +1,7 @@
 import { forwardRef } from 'react';
 import FieldWrapper from './FieldWrapper';
+import { fieldClassName } from './styles';
 import { cn } from './cn';
-
-const selectClassName =
-    'block w-full rounded-md border-gray-300 shadow-sm transition focus:border-indigo-500 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-60';
 
 const Select = forwardRef(function Select(
     {
@@ -31,7 +29,7 @@ const Select = forwardRef(function Select(
                 {...props}
                 id={id}
                 ref={ref}
-                className={cn(selectClassName, className)}
+                className={cn(fieldClassName, className)}
             >
                 {placeholder && (
                     <option value="" disabled>

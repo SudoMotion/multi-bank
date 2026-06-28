@@ -1,3 +1,4 @@
+import AdminPageHeader from '@/Components/Admin/AdminPageHeader';
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
 import {
     Alert,
@@ -65,12 +66,10 @@ export default function Index({ settings }) {
         <AdminLayout title="Settings">
             <Head title="Settings" />
 
-            <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
-                <p className="mt-1 text-sm text-gray-500">
-                    Manage application settings and contact information.
-                </p>
-            </div>
+            <AdminPageHeader
+                title="Settings"
+                description="Manage application settings and contact information."
+            />
 
             {flash?.success && (
                 <Alert variant="success" className="mb-4">
@@ -128,11 +127,11 @@ export default function Index({ settings }) {
                                 <img
                                     src={logoPreview}
                                     alt="Logo preview"
-                                    className="mt-3 h-20 w-auto rounded border border-gray-200 object-contain p-1"
+                                    className="mt-3 h-20 w-auto rounded border border-neutral-200 object-contain p-1"
                                 />
                             )}
                             {progress && (
-                                <p className="mt-2 text-sm text-gray-500">
+                                <p className="mt-2 text-sm text-neutral-500">
                                     Uploading: {progress.percentage}%
                                 </p>
                             )}
@@ -164,7 +163,7 @@ export default function Index({ settings }) {
                         {data.social_media.map((item, index) => (
                             <div
                                 key={index}
-                                className="grid gap-4 rounded-md border border-gray-100 bg-gray-50 p-4 sm:grid-cols-2"
+                                className="grid gap-4 rounded-md border border-neutral-200 bg-neutral-50/50 p-4 sm:grid-cols-2"
                             >
                                 <Input
                                     id={`social_platform_${index}`}

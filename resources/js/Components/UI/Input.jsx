@@ -1,9 +1,7 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import FieldWrapper from './FieldWrapper';
+import { fieldClassName } from './styles';
 import { cn } from './cn';
-
-const inputClassName =
-    'block w-full rounded-md border-gray-300 shadow-sm transition focus:border-indigo-500 focus:ring-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-60';
 
 const Input = forwardRef(function Input(
     {
@@ -44,7 +42,7 @@ const Input = forwardRef(function Input(
                 id={id}
                 type={type}
                 ref={localRef}
-                className={cn(inputClassName, className)}
+                className={cn(fieldClassName, className)}
             />
         </FieldWrapper>
     );

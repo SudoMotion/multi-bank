@@ -9,15 +9,15 @@ export default function Card({
     children,
 }) {
     return (
-        <div className={cn('rounded-lg border border-gray-200 bg-white shadow-sm', className)}>
+        <div className={cn('rounded-lg border border-neutral-200 bg-white', className)}>
             {(title || description || actions) && (
-                <div className="flex items-start justify-between gap-4 border-b border-gray-100 px-6 py-4">
+                <div className="flex items-start justify-between gap-4 border-b border-neutral-100 px-6 py-4">
                     <div>
                         {title && (
-                            <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+                            <h3 className="text-base font-medium text-neutral-900">{title}</h3>
                         )}
                         {description && (
-                            <p className="mt-1 text-sm text-gray-500">{description}</p>
+                            <p className="mt-1 text-sm text-neutral-500">{description}</p>
                         )}
                     </div>
                     {actions && <div className="shrink-0">{actions}</div>}

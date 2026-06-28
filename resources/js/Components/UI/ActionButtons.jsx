@@ -5,9 +5,9 @@ const baseClassName =
     'inline-flex items-center justify-center rounded-md border p-2 transition focus:outline-none focus:ring-2 focus:ring-offset-1';
 
 const variants = {
-    view: 'border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 focus:ring-blue-500',
-    edit: 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 focus:ring-amber-500',
-    delete: 'border-red-200 bg-red-50 text-red-700 hover:bg-red-100 focus:ring-red-500',
+    view: 'border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 focus:ring-neutral-400',
+    edit: 'border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900 focus:ring-neutral-400',
+    delete: 'border-red-200 bg-white text-red-600 hover:bg-red-50 focus:ring-red-400',
 };
 
 function ActionIcon({ type }) {

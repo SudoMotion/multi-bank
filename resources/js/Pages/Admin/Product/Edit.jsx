@@ -1,3 +1,4 @@
+import AdminPageHeader from '@/Components/Admin/AdminPageHeader';
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
 import {
     Button,
@@ -30,15 +31,11 @@ export default function Edit({ productId }) {
         <AdminLayout title="Edit Product">
             <Head title="Edit Product" />
 
-            <div className="mb-6">
-                <Link
-                    href={route('admin.products.index')}
-                    className="text-sm text-indigo-600 hover:text-indigo-800"
-                >
-                    &larr; Back to products
-                </Link>
-                <h2 className="mt-2 text-2xl font-bold text-gray-900">Edit Product</h2>
-            </div>
+            <AdminPageHeader
+                title="Edit Product"
+                backHref={route('admin.products.index')}
+                backLabel="Back to products"
+            />
 
             <form onSubmit={submit}>
                 <Card title="Product Details">

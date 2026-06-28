@@ -46,17 +46,20 @@ export default function AdminSidebar({ open, onNavigate }) {
     return (
         <aside
             className={
-                'fixed bottom-10 left-0 top-14 z-40 flex w-64 flex-col border-r border-slate-800 bg-slate-900 transition-transform duration-300 ease-in-out lg:translate-x-0 ' +
+                'fixed bottom-10 left-0 top-14 z-40 flex w-60 flex-col border-r border-neutral-200 bg-neutral-50 transition-transform duration-300 ease-in-out lg:translate-x-0 ' +
                 (open ? 'translate-x-0' : '-translate-x-full')
             }
         >
-            <div className="flex h-14 shrink-0 items-center border-b border-slate-800 px-4 lg:hidden">
+            <div className="flex h-14 shrink-0 items-center border-b border-neutral-200 px-4 lg:hidden">
                 <Link href="/" onClick={onNavigate}>
-                    <ApplicationLogo className="block h-8 w-auto fill-current text-white" />
+                    <ApplicationLogo className="block h-7 w-auto fill-current text-neutral-800" />
                 </Link>
             </div>
 
-            <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+            <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
+                <p className="mb-2 px-3 text-[11px] font-medium uppercase tracking-wider text-neutral-400">
+                    Menu
+                </p>
                 {navigation.map((item) => (
                     <AdminSidebarLink
                         key={item.name}
@@ -70,11 +73,11 @@ export default function AdminSidebar({ open, onNavigate }) {
                 ))}
             </nav>
 
-            <div className="shrink-0 border-t border-slate-800 p-4">
+            <div className="shrink-0 border-t border-neutral-200 p-4">
                 <Link
                     href="/"
                     onClick={onNavigate}
-                    className="flex items-center gap-2 text-sm text-slate-400 transition-colors hover:text-white"
+                    className="flex items-center gap-2 text-sm text-neutral-500 transition-colors hover:text-neutral-800"
                 >
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />

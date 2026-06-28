@@ -1,3 +1,4 @@
+import AdminPageHeader from '@/Components/Admin/AdminPageHeader';
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
 import {
     ActionButtonGroup,
@@ -20,45 +21,45 @@ export default function Index() {
         <AdminLayout title="Products">
             <Head title="Products" />
 
-            <div className="mb-6 flex items-center justify-between">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Products</h2>
-                    <p className="mt-1 text-sm text-gray-500">Manage your products.</p>
-                </div>
-                <Link href={route('admin.products.create')}>
-                    <Button>Add Product</Button>
-                </Link>
-            </div>
+            <AdminPageHeader
+                title="Products"
+                description="Manage your products."
+                actions={
+                    <Link href={route('admin.products.create')}>
+                        <Button>Add Product</Button>
+                    </Link>
+                }
+            />
 
             <Card bodyClassName="p-0">
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                    <table className="min-w-full divide-y divide-neutral-200">
+                        <thead className="bg-neutral-50">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-neutral-500">
                                     Name
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-neutral-500">
                                     Status
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-neutral-500">
                                     Price
                                 </th>
-                                <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wide text-neutral-500">
                                     Actions
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200 bg-white">
+                        <tbody className="divide-y divide-neutral-100 bg-white">
                             {sampleProducts.map((product) => (
-                                <tr key={product.id}>
-                                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                                <tr key={product.id} className="hover:bg-neutral-50/50">
+                                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-900">
                                         {product.name}
                                     </td>
-                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-neutral-600">
                                         {product.status}
                                     </td>
-                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-neutral-600">
                                         {product.price}
                                     </td>
                                     <td className="whitespace-nowrap px-6 py-4 text-right">

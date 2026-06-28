@@ -19,7 +19,7 @@ export default function Radio({
             value={value}
             checked={checked}
             className={cn(
-                'border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500',
+                'border-neutral-300 text-neutral-900 shadow-sm focus:ring-neutral-500',
                 className,
             )}
         />
@@ -35,7 +35,7 @@ export default function Radio({
             className={cn('inline-flex cursor-pointer items-center gap-2', labelClassName)}
         >
             {input}
-            <span className="text-sm text-gray-700">{label}</span>
+            <span className="text-sm text-neutral-700">{label}</span>
         </label>
     );
 }

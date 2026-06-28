@@ -6,7 +6,6 @@ export default function SecondaryButton({ type = 'button', ...props }) {
             type={type}
             variant="secondary"
             size="sm"
-            className="uppercase tracking-widest"
             {...props}
         />
     );

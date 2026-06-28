@@ -1,3 +1,4 @@
+import AdminPageHeader from '@/Components/Admin/AdminPageHeader';
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
 import {
     ActionButtonGroup,
@@ -20,45 +21,45 @@ export default function Index() {
         <AdminLayout title="Users">
             <Head title="Users" />
 
-            <div className="mb-6 flex items-center justify-between">
-                <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Users</h2>
-                    <p className="mt-1 text-sm text-gray-500">Manage application users.</p>
-                </div>
-                <Link href={route('admin.users.create')}>
-                    <Button>Add User</Button>
-                </Link>
-            </div>
+            <AdminPageHeader
+                title="Users"
+                description="Manage application users."
+                actions={
+                    <Link href={route('admin.users.create')}>
+                        <Button>Add User</Button>
+                    </Link>
+                }
+            />
 
             <Card bodyClassName="p-0">
                 <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
+                    <table className="min-w-full divide-y divide-neutral-200">
+                        <thead className="bg-neutral-50">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-neutral-500">
                                     Name
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-neutral-500">
                                     Email
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-neutral-500">
                                     Role
                                 </th>
-                                <th className="px-6 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wide text-neutral-500">
                                     Actions
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200 bg-white">
+                        <tbody className="divide-y divide-neutral-100 bg-white">
                             {sampleUsers.map((user) => (
-                                <tr key={user.id}>
-                                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                                <tr key={user.id} className="hover:bg-neutral-50/50">
+                                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-900">
                                         {user.name}
                                     </td>
-                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-neutral-600">
                                         {user.email}
                                     </td>
-                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-neutral-600">
                                         {user.role}
                                     </td>
                                     <td className="whitespace-nowrap px-6 py-4 text-right">
