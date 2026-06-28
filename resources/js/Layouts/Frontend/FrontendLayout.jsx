@@ -12,7 +12,7 @@ export default function FrontendLayout({ children }) {
                         <Link href="/" className="text-gray-600 hover:text-gray-900">
                             Home
                         </Link>
-                        <Link href={route('login')} className="text-gray-600 hover:text-gray-900">
+                        <Link href={route('admin.login')} className="text-gray-600 hover:text-gray-900">
                             Login
                         </Link>
                     </nav>

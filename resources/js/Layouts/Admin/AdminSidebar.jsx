@@ -30,7 +30,7 @@ function SettingsIcon({ className }) {
 const navigation = [
     { name: 'Dashboard', href: 'admin.dashboard', active: 'admin.dashboard', icon: DashboardIcon },
     { name: 'Users', href: 'admin.users.index', active: 'admin.users.*', icon: UsersIcon },
-    { name: 'Settings', href: 'profile.edit', active: 'profile.*', icon: SettingsIcon },
+    { name: 'Settings', href: 'admin.profile.edit', active: 'admin.profile.*', icon: SettingsIcon },
 ];
 
 export default function AdminSidebar({ open, onNavigate }) {
