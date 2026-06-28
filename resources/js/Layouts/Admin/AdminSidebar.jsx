@@ -69,7 +69,7 @@ export default function AdminSidebar({ open, onNavigate }) {
             </div>
 
             <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
-                {visibleTopLevelItems.slice(0, 1).map((item) => (
+                {visibleTopLevelItems.map((item) => (
                     <AdminSidebarLink
                         key={item.name}
                         href={route(item.href)}
@@ -89,18 +89,6 @@ export default function AdminSidebar({ open, onNavigate }) {
                         onNavigate={onNavigate}
                     />
                 )}
-
-                {visibleTopLevelItems.slice(1).map((item) => (
-                    <AdminSidebarLink
-                        key={item.name}
-                        href={route(item.href)}
-                        active={route().current(item.active)}
-                        icon={item.icon}
-                        onNavigate={onNavigate}
-                    >
-                        {item.name}
-                    </AdminSidebarLink>
-                ))}
             </nav>
 
             <div
