@@ -1,9 +1,13 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import SecondaryButton from '@/Components/SecondaryButton';
-import TextInput from '@/Components/TextInput';
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
+import {
+    Alert,
+    Button,
+    Card,
+    FileInput,
+    FormField,
+    Input,
+    Textarea,
+} from '@/Components/UI';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -70,71 +74,66 @@ export default function Index({ settings }) {
             </div>
 
             {flash?.success && (
-                <div className="mb-4 rounded-md bg-green-50 p-4 text-sm text-green-700">
+                <Alert variant="success" className="mb-4">
                     {flash.success}
-                </div>
+                </Alert>
             )}
 
             <form onSubmit={submit} className="space-y-6">
-                <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-                    <h3 className="mb-4 text-lg font-semibold text-gray-900">
-                        General Information
-                    </h3>
-
+                <Card title="General Information">
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="sm:col-span-2">
-                            <InputLabel htmlFor="application_name" value="Application Name" />
-                            <TextInput
+                        <FormField
+                            className="sm:col-span-2"
+                            label="Application Name"
+                            htmlFor="application_name"
+                            error={errors.application_name}
+                        >
+                            <Input
                                 id="application_name"
                                 value={data.application_name}
-                                className="mt-1 block w-full"
                                 onChange={(e) => setData('application_name', e.target.value)}
                             />
-                            <InputError message={errors.application_name} className="mt-2" />
-                        </div>
+                        </FormField>
 
-                        <div>
-                            <InputLabel htmlFor="email" value="Email" />
-                            <TextInput
+                        <FormField label="Email" htmlFor="email" error={errors.email}>
+                            <Input
                                 id="email"
                                 type="email"
                                 value={data.email}
-                                className="mt-1 block w-full"
                                 onChange={(e) => setData('email', e.target.value)}
                             />
-                            <InputError message={errors.email} className="mt-2" />
-                        </div>
+                        </FormField>
 
-                        <div>
-                            <InputLabel htmlFor="phone" value="Phone" />
-                            <TextInput
+                        <FormField label="Phone" htmlFor="phone" error={errors.phone}>
+                            <Input
                                 id="phone"
                                 value={data.phone}
-                                className="mt-1 block w-full"
                                 onChange={(e) => setData('phone', e.target.value)}
                             />
-                            <InputError message={errors.phone} className="mt-2" />
-                        </div>
+                        </FormField>
 
-                        <div className="sm:col-span-2">
-                            <InputLabel htmlFor="address" value="Address" />
-                            <textarea
+                        <FormField
+                            className="sm:col-span-2"
+                            label="Address"
+                            htmlFor="address"
+                            error={errors.address}
+                        >
+                            <Textarea
                                 id="address"
-                                rows={3}
                                 value={data.address}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                 onChange={(e) => setData('address', e.target.value)}
                             />
-                            <InputError message={errors.address} className="mt-2" />
-                        </div>
+                        </FormField>
 
-                        <div className="sm:col-span-2">
-                            <InputLabel htmlFor="logo" value="Logo" />
-                            <input
+                        <FormField
+                            className="sm:col-span-2"
+                            label="Logo"
+                            htmlFor="logo"
+                            error={errors.logo}
+                        >
+                            <FileInput
                                 id="logo"
-                                type="file"
                                 accept="image/*"
-                                className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:rounded-md file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100"
                                 onChange={handleLogoChange}
                             />
                             {logoPreview && (
@@ -144,117 +143,94 @@ export default function Index({ settings }) {
                                     className="mt-3 h-20 w-auto rounded border border-gray-200 object-contain p-1"
                                 />
                             )}
-                            <InputError message={errors.logo} className="mt-2" />
                             {progress && (
                                 <p className="mt-2 text-sm text-gray-500">
                                     Uploading: {progress.percentage}%
                                 </p>
                             )}
-                        </div>
+                        </FormField>
 
-                        <div className="sm:col-span-2">
-                            <InputLabel
-                                htmlFor="google_map_embed_link"
-                                value="Google Map Embed Link"
-                            />
-                            <TextInput
+                        <FormField
+                            className="sm:col-span-2"
+                            label="Google Map Embed Link"
+                            htmlFor="google_map_embed_link"
+                            error={errors.google_map_embed_link}
+                        >
+                            <Input
                                 id="google_map_embed_link"
                                 value={data.google_map_embed_link}
-                                className="mt-1 block w-full"
                                 placeholder="https://www.google.com/maps/embed?..."
                                 onChange={(e) =>
                                     setData('google_map_embed_link', e.target.value)
                                 }
                             />
-                            <InputError
-                                message={errors.google_map_embed_link}
-                                className="mt-2"
-                            />
-                        </div>
+                        </FormField>
                     </div>
-                </div>
+                </Card>
 
-                <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-                    <div className="mb-4 flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                            Social Media
-                        </h3>
-                        <SecondaryButton type="button" onClick={addSocialMedia}>
+                <Card
+                    title="Social Media"
+                    actions={
+                        <Button type="button" variant="secondary" onClick={addSocialMedia}>
                             Add Link
-                        </SecondaryButton>
-                    </div>
-
+                        </Button>
+                    }
+                >
                     <div className="space-y-4">
                         {data.social_media.map((item, index) => (
                             <div
                                 key={index}
                                 className="grid gap-4 rounded-md border border-gray-100 bg-gray-50 p-4 sm:grid-cols-2"
                             >
-                                <div>
-                                    <InputLabel
-                                        htmlFor={`social_platform_${index}`}
-                                        value="Platform"
-                                    />
-                                    <TextInput
+                                <FormField
+                                    label="Platform"
+                                    htmlFor={`social_platform_${index}`}
+                                    error={errors[`social_media.${index}.platform`]}
+                                >
+                                    <Input
                                         id={`social_platform_${index}`}
                                         value={item.platform}
-                                        className="mt-1 block w-full"
                                         placeholder="Facebook, Instagram, etc."
                                         onChange={(e) =>
-                                            updateSocialMedia(
-                                                index,
-                                                'platform',
-                                                e.target.value,
-                                            )
+                                            updateSocialMedia(index, 'platform', e.target.value)
                                         }
                                     />
-                                    <InputError
-                                        message={errors[`social_media.${index}.platform`]}
-                                        className="mt-2"
-                                    />
-                                </div>
+                                </FormField>
 
-                                <div>
-                                    <InputLabel
-                                        htmlFor={`social_url_${index}`}
-                                        value="URL"
-                                    />
-                                    <div className="mt-1 flex gap-2">
-                                        <TextInput
+                                <FormField
+                                    label="URL"
+                                    htmlFor={`social_url_${index}`}
+                                    error={errors[`social_media.${index}.url`]}
+                                >
+                                    <div className="flex gap-2">
+                                        <Input
                                             id={`social_url_${index}`}
                                             value={item.url}
-                                            className="block w-full"
                                             placeholder="https://..."
                                             onChange={(e) =>
-                                                updateSocialMedia(
-                                                    index,
-                                                    'url',
-                                                    e.target.value,
-                                                )
+                                                updateSocialMedia(index, 'url', e.target.value)
                                             }
                                         />
                                         {data.social_media.length > 1 && (
-                                            <button
+                                            <Button
                                                 type="button"
+                                                variant="outline"
                                                 onClick={() => removeSocialMedia(index)}
-                                                className="shrink-0 rounded-md border border-red-200 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
                                             >
                                                 Remove
-                                            </button>
+                                            </Button>
                                         )}
                                     </div>
-                                    <InputError
-                                        message={errors[`social_media.${index}.url`]}
-                                        className="mt-2"
-                                    />
-                                </div>
+                                </FormField>
                             </div>
                         ))}
                     </div>
-                </div>
+                </Card>
 
                 <div className="flex justify-end">
-                    <PrimaryButton disabled={processing}>Save Settings</PrimaryButton>
+                    <Button type="submit" disabled={processing}>
+                        Save Settings
+                    </Button>
                 </div>
             </form>
         </AdminLayout>
