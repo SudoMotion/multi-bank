@@ -121,14 +121,18 @@ export default function Index({ settings }) {
                             wrapperClassName="sm:col-span-2"
                             accept="image/*"
                             error={errors.logo}
+                            hint="PNG, JPG or SVG. Max 2MB."
+                            placeholder={logoPreview ? 'Replace current logo' : 'No file chosen'}
                             onChange={handleLogoChange}
                         >
                             {logoPreview && (
-                                <img
-                                    src={logoPreview}
-                                    alt="Logo preview"
-                                    className="mt-3 h-20 w-auto rounded border border-neutral-200 object-contain p-1"
-                                />
+                                <div className="mt-3 inline-flex rounded-md border border-neutral-200 bg-neutral-50 p-2">
+                                    <img
+                                        src={logoPreview}
+                                        alt="Logo preview"
+                                        className="h-16 w-auto max-w-[200px] object-contain"
+                                    />
+                                </div>
                             )}
                             {progress && (
                                 <p className="mt-2 text-sm text-neutral-500">
