@@ -1,58 +1,223 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Laravel + Inertia + React Boilerplate
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A production-ready starter for building full-stack applications with **Laravel**, **Inertia.js**, and **React**. Includes a public marketing site, a permission-based admin panel, reusable UI components, and common modules pre-wired so you can focus on your product.
 
-## About Laravel
+## Tech Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+| Layer | Technology |
+|-------|------------|
+| Backend | Laravel 13, PHP 8.3+ |
+| Frontend | React 18, Inertia.js v2 |
+| Styling | Tailwind CSS 3 |
+| Build | Vite 8 |
+| Auth | Laravel Breeze (React stack) |
+| Permissions | Spatie Laravel Permission |
+| Routes (JS) | Ziggy |
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Public website
+- Responsive layout with navbar and footer
+- **Home** — hero, services, about preview, CTA
+- **About Us** — content managed from admin
+- **Contact Us** — form with settings-driven contact info and Google Maps embed
 
-## Learning Laravel
+### Admin panel (`/admin`)
+- Fixed topbar, sidebar, and footer layout
+- **Dashboard**
+- **About Us** — single-page content (title, description, image, status)
+- **Settings** — app name, logo, favicon, email, phone, address, map embed, social links
+- **Access Control** (dropdown)
+  - Users — CRUD with role assignment
+  - Roles — create and manage roles
+  - Permissions — assign permissions per role (page-level)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### RBAC
+- Superadmin role with full access (Gate bypass)
+- Granular permissions per module (`view`, `create`, `edit`, `delete`, `update`)
+- Sidebar and routes filtered by permission
+- Seeded permissions and default superadmin user
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### UI component library
+Reusable form and layout components under `resources/js/Components/UI/`:
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+`Input`, `Select`, `Textarea`, `FileInput`, `Button`, `Card`, `Alert`, `Checkbox`, `Radio`, action buttons (`AddAction`, `RemoveAction`, `EditAction`, `DeleteAction`, etc.)
 
-## Agentic Development
+### Shared site data
+Logo, favicon (falls back to logo), contact info, and social links are shared via Inertia and used on both frontend and admin.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Requirements
+
+- PHP 8.3+
+- Composer
+- Node.js 18+ and npm
+- MySQL (or compatible database)
+
+## Installation
 
 ```bash
-composer require laravel/boost --dev
+# Clone the repository
+git clone <your-repo-url> my-project
+cd my-project
 
-php artisan boost:install
+# Install PHP dependencies
+composer install
+
+# Environment
+cp .env.example .env
+php artisan key:generate
+
+# Configure .env (database, app URL, mail, etc.)
+# DB_DATABASE=...
+# APP_URL=http://localhost
+
+# Database
+php artisan migrate
+php artisan db:seed
+
+# Storage link (required for logo/favicon/uploads)
+php artisan storage:link
+
+# Install frontend dependencies
+npm install
+
+# Run development servers
+composer dev
+# Or separately:
+# php artisan serve
+# npm run dev
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Visit:
+- **Frontend:** `http://localhost:8000`
+- **Admin:** `http://localhost:8000/admin/login`
 
-## Contributing
+### Default admin credentials
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+| Field | Value |
+|-------|-------|
+| Email | `admin@gmail.com` |
+| Password | `123456789` |
 
-## Code of Conduct
+Change these immediately after first login in production.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Project Structure
 
-## Security Vulnerabilities
+```
+app/
+├── Http/
+│   ├── Controllers/
+│   │   ├── Admin/          # Admin module controllers
+│   │   ├── Frontend/       # Public site controllers
+│   │   └── Auth/           # Breeze auth controllers
+│   ├── Middleware/
+│   └── Requests/
+├── Models/
+└── Support/
+    ├── Permissions.php     # Permission definitions
+    ├── SiteData.php        # Shared site settings helper
+    └── GoogleMapEmbed.php
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+resources/js/
+├── Components/
+│   ├── UI/                 # Reusable form & UI components
+│   ├── Admin/              # Admin-specific components
+│   └── Frontend/           # Frontend-specific components
+├── Layouts/
+│   ├── Admin/              # Admin layout (topbar, sidebar, footer)
+│   └── Frontend/           # Public site layout
+├── Pages/
+│   ├── Admin/              # Admin Inertia pages (module folders)
+│   ├── Frontend/           # Public Inertia pages
+│   └── Auth/               # Login, register, etc.
+├── hooks/
+│   └── useCan.js           # Permission check hook
+└── app.jsx                 # Inertia entry point
+
+routes/
+├── web.php                 # Public routes
+└── admin.php               # All /admin routes
+```
+
+## Routes
+
+### Public
+
+| Method | URI | Name |
+|--------|-----|------|
+| GET | `/` | `home` |
+| GET | `/about` | `about` |
+| GET | `/contact` | `contact` |
+| POST | `/contact` | `contact.store` |
+
+### Admin (prefix `/admin`)
+
+| Area | Examples |
+|------|----------|
+| Auth | `/admin/login`, `/admin/register` |
+| Dashboard | `/admin/dashboard` |
+| About Us | `/admin/about-us` |
+| Settings | `/admin/settings` |
+| Users | `/admin/users` |
+| Roles | `/admin/roles` |
+| Permissions | `/admin/permissions` |
+
+Legacy redirects: `/login` → `/admin/login`, `/dashboard` → `/admin/dashboard`.
+
+## Permissions
+
+Permissions are defined in `app/Support/Permissions.php`. After adding new permissions, re-seed:
+
+```bash
+php artisan db:seed --class=RolePermissionSeeder
+```
+
+Use in routes:
+
+```php
+Route::get('example', ...)->middleware('permission:example.view');
+```
+
+Use in React:
+
+```jsx
+import { useCan } from '@/hooks/useCan';
+
+const can = useCan();
+if (can('users.create')) { ... }
+```
+
+## Adding a New Admin Module
+
+1. Create migration, model, and controller under `app/Http/Controllers/Admin/`
+2. Add form requests in `app/Http/Requests/Admin/`
+3. Register routes in `routes/admin.php` with permission middleware
+4. Add permissions to `app/Support/Permissions.php` and re-seed
+5. Create pages under `resources/js/Pages/Admin/YourModule/`
+6. Add sidebar link in `resources/js/Layouts/Admin/AdminSidebar.jsx`
+
+## UI Conventions
+
+- Form pages use `AdminForm` and `AdminFormGrid` for consistent full-width responsive grids
+- Page padding: `px-2 md:px-4` on admin content
+- Status fields should be placed **last** in forms
+- Use components from `@/Components/UI` instead of raw HTML for forms
+
+## Build for Production
+
+```bash
+npm run build
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+## Testing
+
+```bash
+php artisan test
+```
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
