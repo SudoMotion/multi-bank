@@ -11,7 +11,7 @@ export default function FormField({
     children,
 }) {
     return (
-        <div className={cn('space-y-1', className)}>
+        <div className={cn('w-full space-y-1', className)}>
             {label ? (
                 <Label htmlFor={htmlFor} value={label} required={required} />
             ) : null}

@@ -20,16 +20,16 @@ export default function Index() {
                 description="Welcome to the admin panel."
             />
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {stats.map((stat) => (
-                    <Card key={stat.label} bodyClassName="p-5">
+                    <Card key={stat.label} bodyClassName="p-4">
                         <p className="text-sm text-neutral-500">{stat.label}</p>
                         <p className="mt-2 text-2xl font-medium text-neutral-900">{stat.value}</p>
                     </Card>
                 ))}
             </div>
 
-            <Card title="Recent Activity" className="mt-6">
+            <Card title="Recent Activity" className="mt-4">
                 <p className="text-sm text-neutral-500">Your admin content goes here.</p>
             </Card>
         </AdminLayout>

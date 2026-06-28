@@ -1,4 +1,5 @@
 import AdminPageHeader from '@/Components/Admin/AdminPageHeader';
+import { AdminForm, AdminFormGrid } from '@/Components/Admin/AdminForm';
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
 import {
     Alert,
@@ -77,9 +78,9 @@ export default function Index({ settings }) {
                 </Alert>
             )}
 
-            <form onSubmit={submit} className="space-y-6">
+            <AdminForm onSubmit={submit} className="space-y-4">
                 <Card title="General Information">
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <AdminFormGrid>
                         <Input
                             id="application_name"
                             label="Application Name"
@@ -152,7 +153,7 @@ export default function Index({ settings }) {
                                 setData('google_map_embed_link', e.target.value)
                             }
                         />
-                    </div>
+                    </AdminFormGrid>
                 </Card>
 
                 <Card
@@ -163,11 +164,11 @@ export default function Index({ settings }) {
                         </Button>
                     }
                 >
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         {data.social_media.map((item, index) => (
-                            <div
+                            <AdminFormGrid
                                 key={index}
-                                className="grid gap-4 rounded-md border border-neutral-200 bg-neutral-50/50 p-4 sm:grid-cols-2"
+                                className="rounded-md border border-neutral-200 bg-neutral-50/50 p-3"
                             >
                                 <Input
                                     id={`social_platform_${index}`}
@@ -202,7 +203,7 @@ export default function Index({ settings }) {
                                         </Button>
                                     </div>
                                 )}
-                            </div>
+                            </AdminFormGrid>
                         ))}
                     </div>
                 </Card>
@@ -212,7 +213,7 @@ export default function Index({ settings }) {
                         Save Settings
                     </Button>
                 </div>
-            </form>
+            </AdminForm>
         </AdminLayout>
     );
 }

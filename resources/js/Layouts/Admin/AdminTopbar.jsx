@@ -7,7 +7,7 @@ export default function AdminTopbar({ title, onToggleSidebar }) {
     const user = usePage().props.auth.user;
 
     return (
-        <header className="fixed inset-x-0 top-0 z-50 flex h-14 items-center justify-between border-b border-neutral-200 bg-white px-4 sm:px-6">
+        <header className="fixed inset-x-0 top-0 z-50 flex h-14 items-center justify-between border-b border-neutral-200 bg-white px-2 md:px-4">
             <div className="flex items-center gap-3">
                 <Button
                     type="button"

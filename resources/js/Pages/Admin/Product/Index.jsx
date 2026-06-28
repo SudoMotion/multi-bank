@@ -36,16 +36,16 @@ export default function Index() {
                     <table className="min-w-full divide-y divide-neutral-200">
                         <thead className="bg-neutral-50">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-neutral-500">
+                                <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wide text-neutral-500">
                                     Name
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-neutral-500">
+                                <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wide text-neutral-500">
                                     Status
                                 </th>
-                                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wide text-neutral-500">
+                                <th className="px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wide text-neutral-500">
                                     Price
                                 </th>
-                                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wide text-neutral-500">
+                                <th className="px-4 py-2.5 text-right text-xs font-medium uppercase tracking-wide text-neutral-500">
                                     Actions
                                 </th>
                             </tr>
@@ -53,16 +53,16 @@ export default function Index() {
                         <tbody className="divide-y divide-neutral-100 bg-white">
                             {sampleProducts.map((product) => (
                                 <tr key={product.id} className="hover:bg-neutral-50/50">
-                                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-neutral-900">
+                                    <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-neutral-900">
                                         {product.name}
                                     </td>
-                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-neutral-600">
+                                    <td className="whitespace-nowrap px-4 py-3 text-sm text-neutral-600">
                                         {product.status}
                                     </td>
-                                    <td className="whitespace-nowrap px-6 py-4 text-sm text-neutral-600">
+                                    <td className="whitespace-nowrap px-4 py-3 text-sm text-neutral-600">
                                         {product.price}
                                     </td>
-                                    <td className="whitespace-nowrap px-6 py-4 text-right">
+                                    <td className="whitespace-nowrap px-4 py-3 text-right">
                                         <ActionButtonGroup className="justify-end">
                                             <ViewAction href={`#product-${product.id}`} />
                                             <EditAction

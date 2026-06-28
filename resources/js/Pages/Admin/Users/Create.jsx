@@ -1,4 +1,5 @@
 import AdminPageHeader from '@/Components/Admin/AdminPageHeader';
+import { AdminForm, AdminFormGrid } from '@/Components/Admin/AdminForm';
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
 import {
     Button,
@@ -34,9 +35,9 @@ export default function Create() {
                 backLabel="Back to users"
             />
 
-            <form onSubmit={submit}>
+            <AdminForm onSubmit={submit}>
                 <Card title="User Details">
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <AdminFormGrid>
                         <Input
                             id="name"
                             label="Name"
@@ -101,9 +102,9 @@ export default function Create() {
                                 onChange={(e) => setData('notify', e.target.checked)}
                             />
                         </div>
-                    </div>
+                    </AdminFormGrid>
 
-                    <div className="mt-6 flex justify-end gap-3">
+                    <div className="mt-4 flex justify-end gap-3">
                         <Link href={route('admin.users.index')}>
                             <Button type="button" variant="secondary">
                                 Cancel
@@ -114,7 +115,7 @@ export default function Create() {
                         </Button>
                     </div>
                 </Card>
-            </form>
+            </AdminForm>
         </AdminLayout>
     );
 }

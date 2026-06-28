@@ -1,4 +1,5 @@
 import AdminPageHeader from '@/Components/Admin/AdminPageHeader';
+import { AdminForm, AdminFormGrid } from '@/Components/Admin/AdminForm';
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
 import {
     Button,
@@ -37,9 +38,9 @@ export default function Create() {
                 backLabel="Back to products"
             />
 
-            <form onSubmit={submit}>
+            <AdminForm onSubmit={submit}>
                 <Card title="Product Details">
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <AdminFormGrid>
                         <Input
                             id="name"
                             label="Product Name"
@@ -119,9 +120,9 @@ export default function Create() {
                             error={errors.description}
                             onChange={(e) => setData('description', e.target.value)}
                         />
-                    </div>
+                    </AdminFormGrid>
 
-                    <div className="mt-6 flex justify-end gap-3">
+                    <div className="mt-4 flex justify-end gap-3">
                         <Link href={route('admin.products.index')}>
                             <Button type="button" variant="secondary">
                                 Cancel
@@ -132,7 +133,7 @@ export default function Create() {
                         </Button>
                     </div>
                 </Card>
-            </form>
+            </AdminForm>
         </AdminLayout>
     );
 }

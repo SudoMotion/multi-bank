@@ -19,7 +19,7 @@ export default function FieldWrapper({
     }
 
     return (
-        <div className={cn('space-y-1', className)}>
+        <div className={cn('w-full space-y-1', className)}>
             {label ? (
                 <Label htmlFor={fieldId} value={label} required={required} />
             ) : null}

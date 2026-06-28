@@ -25,7 +25,7 @@ export default function AdminLayout({ title, children }) {
             <AdminFooter />
 
             <main className="fixed bottom-10 left-0 right-0 top-14 overflow-y-auto bg-neutral-100 transition-[left] duration-300 lg:left-60">
-                <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+                <div className="w-full px-2 py-3 md:px-4">{children}</div>
             </main>
         </div>
     );
