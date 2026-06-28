@@ -1,4 +1,4 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
+import AppLogo from '@/Components/AppLogo';
 import { useCan } from '@/hooks/useCan';
 import { Link } from '@inertiajs/react';
 import AdminSidebarGroup from './AdminSidebarGroup';
@@ -63,8 +63,8 @@ export default function AdminSidebar({ open, onNavigate }) {
             }
         >
             <div className="flex h-14 shrink-0 items-center border-b border-neutral-200 px-4 lg:hidden">
-                <Link href="/" onClick={onNavigate}>
-                    <ApplicationLogo className="block h-7 w-auto fill-current text-neutral-800" />
+                <Link href={route('admin.dashboard')} onClick={onNavigate}>
+                    <AppLogo className="block h-7 w-auto fill-current text-neutral-800" />
                 </Link>
             </div>
 

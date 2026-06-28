@@ -1,4 +1,4 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
+import AppLogo from '@/Components/AppLogo';
 import { Button } from '@/Components/UI';
 import Dropdown from '@/Components/Dropdown';
 import { Link, usePage } from '@inertiajs/react';
@@ -23,7 +23,7 @@ export default function AdminTopbar({ title, onToggleSidebar }) {
                 </Button>
 
                 <Link href={route('admin.dashboard')} className="hidden items-center lg:flex">
-                    <ApplicationLogo className="block h-7 w-auto fill-current text-neutral-800" />
+                    <AppLogo className="block h-7 w-auto fill-current text-neutral-800" />
                 </Link>
 
                 {title && (
