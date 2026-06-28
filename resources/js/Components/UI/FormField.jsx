@@ -12,9 +12,9 @@ export default function FormField({
 }) {
     return (
         <div className={cn('space-y-1', className)}>
-            {label && (
+            {label ? (
                 <Label htmlFor={htmlFor} value={label} required={required} />
-            )}
+            ) : null}
             {children}
             <ErrorMessage message={error} />
         </div>

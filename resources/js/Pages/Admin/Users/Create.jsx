@@ -40,48 +40,40 @@ export default function Create() {
             <form onSubmit={submit}>
                 <Card title="User Details">
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <FormField
-                            className="sm:col-span-2"
+                        <Input
+                            id="name"
                             label="Name"
-                            htmlFor="name"
+                            wrapperClassName="sm:col-span-2"
+                            value={data.name}
                             error={errors.name}
                             required
-                        >
-                            <Input
-                                id="name"
-                                value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
-                            />
-                        </FormField>
+                            onChange={(e) => setData('name', e.target.value)}
+                        />
 
-                        <FormField
-                            className="sm:col-span-2"
+                        <Input
+                            id="email"
                             label="Email"
-                            htmlFor="email"
+                            wrapperClassName="sm:col-span-2"
+                            type="email"
+                            value={data.email}
                             error={errors.email}
                             required
-                        >
-                            <Input
-                                id="email"
-                                type="email"
-                                value={data.email}
-                                onChange={(e) => setData('email', e.target.value)}
-                            />
-                        </FormField>
+                            onChange={(e) => setData('email', e.target.value)}
+                        />
 
-                        <FormField label="Role" htmlFor="role" error={errors.role}>
-                            <Select
-                                id="role"
-                                value={data.role}
-                                placeholder="Select role"
-                                options={[
-                                    { value: 'administrator', label: 'Administrator' },
-                                    { value: 'editor', label: 'Editor' },
-                                    { value: 'viewer', label: 'Viewer' },
-                                ]}
-                                onChange={(e) => setData('role', e.target.value)}
-                            />
-                        </FormField>
+                        <Select
+                            id="role"
+                            label="Role"
+                            value={data.role}
+                            placeholder="Select role"
+                            error={errors.role}
+                            options={[
+                                { value: 'administrator', label: 'Administrator' },
+                                { value: 'editor', label: 'Editor' },
+                                { value: 'viewer', label: 'Viewer' },
+                            ]}
+                            onChange={(e) => setData('role', e.target.value)}
+                        />
 
                         <FormField label="Status" error={errors.status}>
                             <div className="flex flex-wrap gap-4 pt-1">
@@ -104,14 +96,14 @@ export default function Create() {
                             </div>
                         </FormField>
 
-                        <FormField className="sm:col-span-2">
+                        <div className="sm:col-span-2">
                             <Checkbox
                                 id="notify"
                                 label="Send welcome email"
                                 checked={data.notify}
                                 onChange={(e) => setData('notify', e.target.checked)}
                             />
-                        </FormField>
+                        </div>
                     </div>
 
                     <div className="mt-6 flex justify-end gap-3">

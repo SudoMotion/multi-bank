@@ -4,7 +4,6 @@ import {
     Button,
     Card,
     FileInput,
-    FormField,
     Input,
     Textarea,
 } from '@/Components/UI';
@@ -82,60 +81,49 @@ export default function Index({ settings }) {
             <form onSubmit={submit} className="space-y-6">
                 <Card title="General Information">
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <FormField
-                            className="sm:col-span-2"
+                        <Input
+                            id="application_name"
                             label="Application Name"
-                            htmlFor="application_name"
+                            wrapperClassName="sm:col-span-2"
+                            value={data.application_name}
                             error={errors.application_name}
-                        >
-                            <Input
-                                id="application_name"
-                                value={data.application_name}
-                                onChange={(e) => setData('application_name', e.target.value)}
-                            />
-                        </FormField>
+                            onChange={(e) => setData('application_name', e.target.value)}
+                        />
 
-                        <FormField label="Email" htmlFor="email" error={errors.email}>
-                            <Input
-                                id="email"
-                                type="email"
-                                value={data.email}
-                                onChange={(e) => setData('email', e.target.value)}
-                            />
-                        </FormField>
+                        <Input
+                            id="email"
+                            label="Email"
+                            type="email"
+                            value={data.email}
+                            error={errors.email}
+                            onChange={(e) => setData('email', e.target.value)}
+                        />
 
-                        <FormField label="Phone" htmlFor="phone" error={errors.phone}>
-                            <Input
-                                id="phone"
-                                value={data.phone}
-                                onChange={(e) => setData('phone', e.target.value)}
-                            />
-                        </FormField>
+                        <Input
+                            id="phone"
+                            label="Phone"
+                            value={data.phone}
+                            error={errors.phone}
+                            onChange={(e) => setData('phone', e.target.value)}
+                        />
 
-                        <FormField
-                            className="sm:col-span-2"
+                        <Textarea
+                            id="address"
                             label="Address"
-                            htmlFor="address"
+                            wrapperClassName="sm:col-span-2"
+                            value={data.address}
                             error={errors.address}
-                        >
-                            <Textarea
-                                id="address"
-                                value={data.address}
-                                onChange={(e) => setData('address', e.target.value)}
-                            />
-                        </FormField>
+                            onChange={(e) => setData('address', e.target.value)}
+                        />
 
-                        <FormField
-                            className="sm:col-span-2"
+                        <FileInput
+                            id="logo"
                             label="Logo"
-                            htmlFor="logo"
+                            wrapperClassName="sm:col-span-2"
+                            accept="image/*"
                             error={errors.logo}
+                            onChange={handleLogoChange}
                         >
-                            <FileInput
-                                id="logo"
-                                accept="image/*"
-                                onChange={handleLogoChange}
-                            />
                             {logoPreview && (
                                 <img
                                     src={logoPreview}
@@ -148,23 +136,19 @@ export default function Index({ settings }) {
                                     Uploading: {progress.percentage}%
                                 </p>
                             )}
-                        </FormField>
+                        </FileInput>
 
-                        <FormField
-                            className="sm:col-span-2"
+                        <Input
+                            id="google_map_embed_link"
                             label="Google Map Embed Link"
-                            htmlFor="google_map_embed_link"
+                            wrapperClassName="sm:col-span-2"
+                            value={data.google_map_embed_link}
+                            placeholder="https://www.google.com/maps/embed?..."
                             error={errors.google_map_embed_link}
-                        >
-                            <Input
-                                id="google_map_embed_link"
-                                value={data.google_map_embed_link}
-                                placeholder="https://www.google.com/maps/embed?..."
-                                onChange={(e) =>
-                                    setData('google_map_embed_link', e.target.value)
-                                }
-                            />
-                        </FormField>
+                            onChange={(e) =>
+                                setData('google_map_embed_link', e.target.value)
+                            }
+                        />
                     </div>
                 </Card>
 
@@ -182,46 +166,39 @@ export default function Index({ settings }) {
                                 key={index}
                                 className="grid gap-4 rounded-md border border-gray-100 bg-gray-50 p-4 sm:grid-cols-2"
                             >
-                                <FormField
+                                <Input
+                                    id={`social_platform_${index}`}
                                     label="Platform"
-                                    htmlFor={`social_platform_${index}`}
+                                    value={item.platform}
+                                    placeholder="Facebook, Instagram, etc."
                                     error={errors[`social_media.${index}.platform`]}
-                                >
-                                    <Input
-                                        id={`social_platform_${index}`}
-                                        value={item.platform}
-                                        placeholder="Facebook, Instagram, etc."
-                                        onChange={(e) =>
-                                            updateSocialMedia(index, 'platform', e.target.value)
-                                        }
-                                    />
-                                </FormField>
+                                    onChange={(e) =>
+                                        updateSocialMedia(index, 'platform', e.target.value)
+                                    }
+                                />
 
-                                <FormField
+                                <Input
+                                    id={`social_url_${index}`}
                                     label="URL"
-                                    htmlFor={`social_url_${index}`}
+                                    value={item.url}
+                                    placeholder="https://..."
                                     error={errors[`social_media.${index}.url`]}
-                                >
-                                    <div className="flex gap-2">
-                                        <Input
-                                            id={`social_url_${index}`}
-                                            value={item.url}
-                                            placeholder="https://..."
-                                            onChange={(e) =>
-                                                updateSocialMedia(index, 'url', e.target.value)
-                                            }
-                                        />
-                                        {data.social_media.length > 1 && (
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                onClick={() => removeSocialMedia(index)}
-                                            >
-                                                Remove
-                                            </Button>
-                                        )}
+                                    onChange={(e) =>
+                                        updateSocialMedia(index, 'url', e.target.value)
+                                    }
+                                />
+
+                                {data.social_media.length > 1 && (
+                                    <div className="sm:col-span-2 flex justify-end">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={() => removeSocialMedia(index)}
+                                        >
+                                            Remove
+                                        </Button>
                                     </div>
-                                </FormField>
+                                )}
                             </div>
                         ))}
                     </div>

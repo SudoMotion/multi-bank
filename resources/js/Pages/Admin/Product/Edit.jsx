@@ -43,51 +43,47 @@ export default function Edit({ productId }) {
             <form onSubmit={submit}>
                 <Card title="Product Details">
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <FormField
-                            className="sm:col-span-2"
+                        <Input
+                            id="name"
                             label="Product Name"
-                            htmlFor="name"
+                            wrapperClassName="sm:col-span-2"
+                            value={data.name}
                             error={errors.name}
                             required
-                        >
-                            <Input
-                                id="name"
-                                value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
-                            />
-                        </FormField>
+                            onChange={(e) => setData('name', e.target.value)}
+                        />
 
-                        <FormField label="SKU" htmlFor="sku" error={errors.sku}>
-                            <Input
-                                id="sku"
-                                value={data.sku}
-                                onChange={(e) => setData('sku', e.target.value)}
-                            />
-                        </FormField>
+                        <Input
+                            id="sku"
+                            label="SKU"
+                            value={data.sku}
+                            error={errors.sku}
+                            onChange={(e) => setData('sku', e.target.value)}
+                        />
 
-                        <FormField label="Category" htmlFor="category" error={errors.category}>
-                            <Select
-                                id="category"
-                                value={data.category}
-                                options={[
-                                    { value: 'furniture', label: 'Furniture' },
-                                    { value: 'lighting', label: 'Lighting' },
-                                    { value: 'decor', label: 'Decor' },
-                                ]}
-                                onChange={(e) => setData('category', e.target.value)}
-                            />
-                        </FormField>
+                        <Select
+                            id="category"
+                            label="Category"
+                            value={data.category}
+                            options={[
+                                { value: 'furniture', label: 'Furniture' },
+                                { value: 'lighting', label: 'Lighting' },
+                                { value: 'decor', label: 'Decor' },
+                            ]}
+                            error={errors.category}
+                            onChange={(e) => setData('category', e.target.value)}
+                        />
 
-                        <FormField label="Price" htmlFor="price" error={errors.price}>
-                            <Input
-                                id="price"
-                                type="number"
-                                value={data.price}
-                                onChange={(e) => setData('price', e.target.value)}
-                            />
-                        </FormField>
+                        <Input
+                            id="price"
+                            label="Price"
+                            type="number"
+                            value={data.price}
+                            error={errors.price}
+                            onChange={(e) => setData('price', e.target.value)}
+                        />
 
-                        <FormField label="Status" error={errors.status}>
+                        <FormField label="Status" error={errors.status} className="sm:col-span-2">
                             <div className="flex flex-wrap gap-4 pt-1">
                                 <Radio
                                     id="status_active"
@@ -108,27 +104,23 @@ export default function Edit({ productId }) {
                             </div>
                         </FormField>
 
-                        <FormField className="sm:col-span-2">
+                        <div className="sm:col-span-2">
                             <Checkbox
                                 id="featured"
                                 label="Featured product"
                                 checked={data.featured}
                                 onChange={(e) => setData('featured', e.target.checked)}
                             />
-                        </FormField>
+                        </div>
 
-                        <FormField
-                            className="sm:col-span-2"
+                        <Textarea
+                            id="description"
                             label="Description"
-                            htmlFor="description"
+                            wrapperClassName="sm:col-span-2"
+                            value={data.description}
                             error={errors.description}
-                        >
-                            <Textarea
-                                id="description"
-                                value={data.description}
-                                onChange={(e) => setData('description', e.target.value)}
-                            />
-                        </FormField>
+                            onChange={(e) => setData('description', e.target.value)}
+                        />
                     </div>
 
                     <div className="mt-6 flex justify-end gap-3">

@@ -2,7 +2,6 @@ import {
     Alert,
     Button,
     Checkbox,
-    FormField,
     Input,
 } from '@/Components/UI';
 import GuestLayout from '@/Layouts/GuestLayout';
@@ -34,28 +33,28 @@ export default function Login({ status }) {
             )}
 
             <form onSubmit={submit} className="space-y-4">
-                <FormField label="Email" htmlFor="email" error={errors.email}>
-                    <Input
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
-                        autoComplete="username"
-                        isFocused={true}
-                        onChange={(e) => setData('email', e.target.value)}
-                    />
-                </FormField>
+                <Input
+                    id="email"
+                    label="Email"
+                    type="email"
+                    name="email"
+                    value={data.email}
+                    error={errors.email}
+                    autoComplete="username"
+                    isFocused={true}
+                    onChange={(e) => setData('email', e.target.value)}
+                />
 
-                <FormField label="Password" htmlFor="password" error={errors.password}>
-                    <Input
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        autoComplete="current-password"
-                        onChange={(e) => setData('password', e.target.value)}
-                    />
-                </FormField>
+                <Input
+                    id="password"
+                    label="Password"
+                    type="password"
+                    name="password"
+                    value={data.password}
+                    error={errors.password}
+                    autoComplete="current-password"
+                    onChange={(e) => setData('password', e.target.value)}
+                />
 
                 <Checkbox
                     id="remember"
