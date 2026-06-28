@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
@@ -66,17 +68,68 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('dashboard', function () {
             return Inertia::render('Admin/Dashboard/Index');
-        })->name('dashboard');
+        })->middleware('permission:dashboard.view')->name('dashboard');
 
-        Route::get('users', [UserController::class, 'index'])->name('users.index');
-        Route::get('users/create', [UserController::class, 'create'])->name('users.create');
-        Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::middleware('permission:users.view')->group(function () {
+            Route::get('users', [UserController::class, 'index'])->name('users.index');
+            Route::get('users/create', [UserController::class, 'create'])
+                ->middleware('permission:users.create')
+                ->name('users.create');
+            Route::post('users', [UserController::class, 'store'])
+                ->middleware('permission:users.create')
+                ->name('users.store');
+            Route::get('users/{user}/edit', [UserController::class, 'edit'])
+                ->middleware('permission:users.edit')
+                ->name('users.edit');
+            Route::put('users/{user}', [UserController::class, 'update'])
+                ->middleware('permission:users.edit')
+                ->name('users.update');
+            Route::delete('users/{user}', [UserController::class, 'destroy'])
+                ->middleware('permission:users.delete')
+                ->name('users.destroy');
+        });
 
-        Route::get('products', [ProductController::class, 'index'])->name('products.index');
-        Route::get('products/create', [ProductController::class, 'create'])->name('products.create');
-        Route::get('products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
+        Route::middleware('permission:roles.view')->group(function () {
+            Route::get('roles', [RoleController::class, 'index'])->name('roles.index');
+            Route::get('roles/create', [RoleController::class, 'create'])
+                ->middleware('permission:roles.create')
+                ->name('roles.create');
+            Route::post('roles', [RoleController::class, 'store'])
+                ->middleware('permission:roles.create')
+                ->name('roles.store');
+            Route::get('roles/{role}/edit', [RoleController::class, 'edit'])
+                ->middleware('permission:roles.edit')
+                ->name('roles.edit');
+            Route::put('roles/{role}', [RoleController::class, 'update'])
+                ->middleware('permission:roles.edit')
+                ->name('roles.update');
+            Route::delete('roles/{role}', [RoleController::class, 'destroy'])
+                ->middleware('permission:roles.delete')
+                ->name('roles.destroy');
+        });
 
-        Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
-        Route::post('settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::middleware('permission:permissions.view')->group(function () {
+            Route::get('permissions', [PermissionController::class, 'index'])->name('permissions.index');
+            Route::post('permissions', [PermissionController::class, 'update'])
+                ->middleware('permission:permissions.update')
+                ->name('permissions.update');
+        });
+
+        Route::middleware('permission:products.view')->group(function () {
+            Route::get('products', [ProductController::class, 'index'])->name('products.index');
+            Route::get('products/create', [ProductController::class, 'create'])
+                ->middleware('permission:products.create')
+                ->name('products.create');
+            Route::get('products/{product}/edit', [ProductController::class, 'edit'])
+                ->middleware('permission:products.edit')
+                ->name('products.edit');
+        });
+
+        Route::middleware('permission:settings.view')->group(function () {
+            Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+            Route::post('settings', [SettingsController::class, 'update'])
+                ->middleware('permission:settings.update')
+                ->name('settings.update');
+        });
     });
 });

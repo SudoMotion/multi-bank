@@ -1,28 +1,21 @@
 import AdminPageHeader from '@/Components/Admin/AdminPageHeader';
 import { AdminForm, AdminFormGrid } from '@/Components/Admin/AdminForm';
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
-import {
-    Button,
-    Card,
-    Checkbox,
-    FormField,
-    Input,
-    Radio,
-    Select,
-} from '@/Components/UI';
+import { Button, Card, Input, Select } from '@/Components/UI';
 import { Head, Link, useForm } from '@inertiajs/react';
 
-export default function Create() {
-    const { data, setData, processing, errors } = useForm({
+export default function Create({ roles }) {
+    const { data, setData, post, processing, errors } = useForm({
         name: '',
         email: '',
+        password: '',
+        password_confirmation: '',
         role: '',
-        status: 'active',
-        notify: true,
     });
 
     const submit = (e) => {
         e.preventDefault();
+        post(route('admin.users.store'));
     };
 
     return (
@@ -41,22 +34,11 @@ export default function Create() {
                         <Input
                             id="name"
                             label="Name"
-                            wrapperClassName="sm:col-span-2"
+                            wrapperClassName="sm:col-span-2 lg:col-span-2 xl:col-span-2"
                             value={data.name}
                             error={errors.name}
                             required
                             onChange={(e) => setData('name', e.target.value)}
-                        />
-
-                        <Input
-                            id="email"
-                            label="Email"
-                            wrapperClassName="sm:col-span-2"
-                            type="email"
-                            value={data.email}
-                            error={errors.email}
-                            required
-                            onChange={(e) => setData('email', e.target.value)}
                         />
 
                         <Select
@@ -65,43 +47,42 @@ export default function Create() {
                             value={data.role}
                             placeholder="Select role"
                             error={errors.role}
-                            options={[
-                                { value: 'administrator', label: 'Administrator' },
-                                { value: 'editor', label: 'Editor' },
-                                { value: 'viewer', label: 'Viewer' },
-                            ]}
+                            options={roles}
                             onChange={(e) => setData('role', e.target.value)}
                         />
 
-                        <FormField label="Status" error={errors.status}>
-                            <div className="flex flex-wrap gap-4 pt-1">
-                                <Radio
-                                    id="user_status_active"
-                                    name="status"
-                                    value="active"
-                                    label="Active"
-                                    checked={data.status === 'active'}
-                                    onChange={() => setData('status', 'active')}
-                                />
-                                <Radio
-                                    id="user_status_inactive"
-                                    name="status"
-                                    value="inactive"
-                                    label="Inactive"
-                                    checked={data.status === 'inactive'}
-                                    onChange={() => setData('status', 'inactive')}
-                                />
-                            </div>
-                        </FormField>
+                        <Input
+                            id="email"
+                            label="Email"
+                            wrapperClassName="sm:col-span-2 lg:col-span-2 xl:col-span-2"
+                            type="email"
+                            value={data.email}
+                            error={errors.email}
+                            required
+                            onChange={(e) => setData('email', e.target.value)}
+                        />
 
-                        <div className="sm:col-span-2">
-                            <Checkbox
-                                id="notify"
-                                label="Send welcome email"
-                                checked={data.notify}
-                                onChange={(e) => setData('notify', e.target.checked)}
-                            />
-                        </div>
+                        <Input
+                            id="password"
+                            label="Password"
+                            type="password"
+                            value={data.password}
+                            error={errors.password}
+                            required
+                            onChange={(e) => setData('password', e.target.value)}
+                        />
+
+                        <Input
+                            id="password_confirmation"
+                            label="Confirm Password"
+                            type="password"
+                            value={data.password_confirmation}
+                            error={errors.password_confirmation}
+                            required
+                            onChange={(e) =>
+                                setData('password_confirmation', e.target.value)
+                            }
+                        />
                     </AdminFormGrid>
 
                     <div className="mt-4 flex justify-end gap-3">

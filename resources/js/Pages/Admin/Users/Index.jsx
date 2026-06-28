@@ -2,21 +2,17 @@ import AdminPageHeader from '@/Components/Admin/AdminPageHeader';
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
 import {
     ActionButtonGroup,
+    Alert,
     Button,
     Card,
     DeleteAction,
     EditAction,
-    ViewAction,
 } from '@/Components/UI';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 
-const sampleUsers = [
-    { id: 1, name: 'Admin', email: 'admin@gmail.com', role: 'Administrator' },
-    { id: 2, name: 'John Doe', email: 'john@example.com', role: 'Editor' },
-    { id: 3, name: 'Jane Smith', email: 'jane@example.com', role: 'Viewer' },
-];
+export default function Index({ users, can }) {
+    const { flash } = usePage().props;
 
-export default function Index() {
     return (
         <AdminLayout title="Users">
             <Head title="Users" />
@@ -25,11 +21,19 @@ export default function Index() {
                 title="Users"
                 description="Manage application users."
                 actions={
-                    <Link href={route('admin.users.create')}>
-                        <Button>Add User</Button>
-                    </Link>
+                    can.create ? (
+                        <Link href={route('admin.users.create')}>
+                            <Button>Add User</Button>
+                        </Link>
+                    ) : null
                 }
             />
+
+            {flash?.success && (
+                <Alert variant="success" className="mb-4">
+                    {flash.success}
+                </Alert>
+            )}
 
             <Card bodyClassName="p-0">
                 <div className="overflow-x-auto">
@@ -51,7 +55,7 @@ export default function Index() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-neutral-100 bg-white">
-                            {sampleUsers.map((user) => (
+                            {users.map((user) => (
                                 <tr key={user.id} className="hover:bg-neutral-50/50">
                                     <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-neutral-900">
                                         {user.name}
@@ -59,16 +63,21 @@ export default function Index() {
                                     <td className="whitespace-nowrap px-4 py-3 text-sm text-neutral-600">
                                         {user.email}
                                     </td>
-                                    <td className="whitespace-nowrap px-4 py-3 text-sm text-neutral-600">
-                                        {user.role}
+                                    <td className="whitespace-nowrap px-4 py-3 text-sm capitalize text-neutral-600">
+                                        {user.role ?? '—'}
                                     </td>
                                     <td className="whitespace-nowrap px-4 py-3 text-right">
                                         <ActionButtonGroup className="justify-end">
-                                            <ViewAction href={`#user-${user.id}`} />
-                                            <EditAction
-                                                href={route('admin.users.edit', user.id)}
-                                            />
-                                            <DeleteAction href={`#delete-user-${user.id}`} />
+                                            {can.edit && (
+                                                <EditAction
+                                                    href={route('admin.users.edit', user.id)}
+                                                />
+                                            )}
+                                            {can.delete && (
+                                                <DeleteAction
+                                                    href={route('admin.users.destroy', user.id)}
+                                                />
+                                            )}
                                         </ActionButtonGroup>
                                     </td>
                                 </tr>
