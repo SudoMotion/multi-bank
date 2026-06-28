@@ -21,7 +21,7 @@ class SiteData
             'phone' => $settings->phone,
             'address' => $settings->address,
             'logo_url' => $settings->logo ? Storage::url($settings->logo) : null,
-            'google_map_embed_link' => $settings->google_map_embed_link,
+            'google_map_embed_link' => GoogleMapEmbed::normalize($settings->google_map_embed_link),
             'social_media' => collect($settings->social_media ?? [])
                 ->filter(fn (array $item) => filled($item['platform'] ?? null) && filled($item['url'] ?? null))
                 ->values()

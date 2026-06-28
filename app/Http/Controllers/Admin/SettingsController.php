@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSettingsRequest;
 use App\Models\Setting;
+use App\Support\GoogleMapEmbed;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -23,7 +24,7 @@ class SettingsController extends Controller
                 'phone' => $settings->phone,
                 'logo_url' => $settings->logo ? Storage::url($settings->logo) : null,
                 'address' => $settings->address,
-                'google_map_embed_link' => $settings->google_map_embed_link,
+                'google_map_embed_link' => GoogleMapEmbed::normalize($settings->google_map_embed_link),
                 'social_media' => $settings->social_media ?? [],
             ],
         ]);
@@ -46,6 +47,8 @@ class SettingsController extends Controller
             ->filter(fn (array $item) => filled($item['platform'] ?? null) || filled($item['url'] ?? null))
             ->values()
             ->all();
+
+        $data['google_map_embed_link'] = GoogleMapEmbed::normalize($data['google_map_embed_link'] ?? null);
 
         $settings->update($data);
 

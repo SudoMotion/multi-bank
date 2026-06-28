@@ -146,12 +146,12 @@ export default function Index({ settings }) {
                             )}
                         </FileInput>
 
-                        <Input
+                        <Textarea
                             id="google_map_embed_link"
-                            label="Google Map Embed Link"
+                            label="Google Map Embed"
                             wrapperClassName="sm:col-span-2 lg:col-span-2 xl:col-span-2"
                             value={data.google_map_embed_link}
-                            placeholder="https://www.google.com/maps/embed?..."
+                            placeholder="Paste the embed URL or full iframe code from Google Maps"
                             error={errors.google_map_embed_link}
                             onChange={(e) =>
                                 setData('google_map_embed_link', e.target.value)
