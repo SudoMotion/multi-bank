@@ -1,7 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\AboutUsController;
 use App\Http\Controllers\Admin\PermissionController;
-use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
@@ -115,14 +115,23 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 ->name('permissions.update');
         });
 
-        Route::middleware('permission:products.view')->group(function () {
-            Route::get('products', [ProductController::class, 'index'])->name('products.index');
-            Route::get('products/create', [ProductController::class, 'create'])
-                ->middleware('permission:products.create')
-                ->name('products.create');
-            Route::get('products/{product}/edit', [ProductController::class, 'edit'])
-                ->middleware('permission:products.edit')
-                ->name('products.edit');
+        Route::middleware('permission:about-us.view')->group(function () {
+            Route::get('about-us', [AboutUsController::class, 'index'])->name('about-us.index');
+            Route::get('about-us/create', [AboutUsController::class, 'create'])
+                ->middleware('permission:about-us.create')
+                ->name('about-us.create');
+            Route::post('about-us', [AboutUsController::class, 'store'])
+                ->middleware('permission:about-us.create')
+                ->name('about-us.store');
+            Route::get('about-us/{aboutUs}/edit', [AboutUsController::class, 'edit'])
+                ->middleware('permission:about-us.edit')
+                ->name('about-us.edit');
+            Route::put('about-us/{aboutUs}', [AboutUsController::class, 'update'])
+                ->middleware('permission:about-us.edit')
+                ->name('about-us.update');
+            Route::delete('about-us/{aboutUs}', [AboutUsController::class, 'destroy'])
+                ->middleware('permission:about-us.delete')
+                ->name('about-us.destroy');
         });
 
         Route::middleware('permission:settings.view')->group(function () {

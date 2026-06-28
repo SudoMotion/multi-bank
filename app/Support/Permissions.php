@@ -21,11 +21,11 @@ class Permissions
                 'users.edit' => 'Edit Users',
                 'users.delete' => 'Delete Users',
             ],
-            'Products' => [
-                'products.view' => 'View Products',
-                'products.create' => 'Create Products',
-                'products.edit' => 'Edit Products',
-                'products.delete' => 'Delete Products',
+            'About Us' => [
+                'about-us.view' => 'View About Us',
+                'about-us.create' => 'Create About Us',
+                'about-us.edit' => 'Edit About Us',
+                'about-us.delete' => 'Delete About Us',
             ],
             'Settings' => [
                 'settings.view' => 'View Settings',

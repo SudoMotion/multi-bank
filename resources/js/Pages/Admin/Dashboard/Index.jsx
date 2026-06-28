@@ -6,7 +6,7 @@ import { Head } from '@inertiajs/react';
 export default function Index() {
     const stats = [
         { label: 'Total Users', value: '—' },
-        { label: 'Products', value: '—' },
+        { label: 'About Us', value: '—' },
         { label: 'Orders', value: '—' },
         { label: 'Pending', value: '—' },
     ];

@@ -19,6 +19,10 @@ class RolePermissionSeeder extends Seeder
             Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
         }
 
+        Permission::query()
+            ->whereNotIn('name', Permissions::all())
+            ->each(fn (Permission $permission) => $permission->delete());
+
         $superadmin = Role::firstOrCreate([
             'name' => Permissions::SUPERADMIN_ROLE,
             'guard_name' => 'web',
