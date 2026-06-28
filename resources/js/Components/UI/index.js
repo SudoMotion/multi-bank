@@ -1,7 +1,9 @@
 import {
     ActionButtonGroup,
+    AddAction,
     DeleteAction,
     EditAction,
+    RemoveAction,
     ViewAction,
 } from './ActionButtons';
 import Alert from './Alert';
@@ -20,6 +22,7 @@ import { cn } from './cn';
 
 export {
     ActionButtonGroup,
+    AddAction,
     Alert,
     Button,
     Card,
@@ -32,6 +35,7 @@ export {
     Input,
     Label,
     Radio,
+    RemoveAction,
     Select,
     Textarea,
     ViewAction,

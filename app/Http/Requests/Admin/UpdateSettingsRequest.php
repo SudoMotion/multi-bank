@@ -4,9 +4,39 @@ namespace App\Http\Requests\Admin;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateSettingsRequest extends FormRequest
 {
+    /**
+     * @return list<string>
+     */
+    public static function socialMediaPlatforms(): array
+    {
+        return [
+            'facebook',
+            'instagram',
+            'x',
+            'linkedin',
+            'youtube',
+            'tiktok',
+            'pinterest',
+            'snapchat',
+            'whatsapp',
+            'telegram',
+            'discord',
+            'reddit',
+            'threads',
+            'github',
+            'dribbble',
+            'behance',
+            'medium',
+            'vimeo',
+            'twitch',
+            'spotify',
+        ];
+    }
+
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -30,7 +60,7 @@ class UpdateSettingsRequest extends FormRequest
             'address' => ['nullable', 'string', 'max:1000'],
             'google_map_embed_link' => ['nullable', 'string', 'max:2000'],
             'social_media' => ['nullable', 'array'],
-            'social_media.*.platform' => ['nullable', 'string', 'max:100'],
+            'social_media.*.platform' => ['nullable', 'string', Rule::in(self::socialMediaPlatforms())],
             'social_media.*.url' => ['nullable', 'url', 'max:500'],
         ];
     }

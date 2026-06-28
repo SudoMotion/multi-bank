@@ -1,12 +1,16 @@
 import AdminPageHeader from '@/Components/Admin/AdminPageHeader';
 import { AdminForm, AdminFormGrid } from '@/Components/Admin/AdminForm';
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
+import { getSocialMediaPlatformOptions } from '@/constants/socialMediaPlatforms';
 import {
     Alert,
+    AddAction,
     Button,
     Card,
     FileInput,
     Input,
+    RemoveAction,
+    Select,
     Textarea,
 } from '@/Components/UI';
 import { Head, useForm, usePage } from '@inertiajs/react';
@@ -159,23 +163,24 @@ export default function Index({ settings }) {
                 <Card
                     title="Social Media"
                     actions={
-                        <Button type="button" variant="secondary" onClick={addSocialMedia}>
+                        <AddAction title="Add social link" onClick={addSocialMedia}>
                             Add Link
-                        </Button>
+                        </AddAction>
                     }
                 >
                     <div className="space-y-3">
                         {data.social_media.map((item, index) => (
                             <AdminFormGrid
                                 key={index}
-                                className="rounded-md border border-neutral-200 bg-neutral-50/50 p-3"
+                                className="items-end rounded-md border border-neutral-200 bg-neutral-50/50 p-3"
                             >
-                                <Input
+                                <Select
                                     id={`social_platform_${index}`}
                                     label="Platform"
                                     wrapperClassName="lg:col-span-1 xl:col-span-1"
                                     value={item.platform}
-                                    placeholder="Facebook, Instagram, etc."
+                                    placeholder="Select platform"
+                                    options={getSocialMediaPlatformOptions(item.platform)}
                                     error={errors[`social_media.${index}.platform`]}
                                     onChange={(e) =>
                                         updateSocialMedia(index, 'platform', e.target.value)
@@ -185,7 +190,11 @@ export default function Index({ settings }) {
                                 <Input
                                     id={`social_url_${index}`}
                                     label="URL"
-                                    wrapperClassName="sm:col-span-2 lg:col-span-2 xl:col-span-3"
+                                    wrapperClassName={
+                                        data.social_media.length > 1
+                                            ? 'sm:col-span-2 lg:col-span-2 xl:col-span-2'
+                                            : 'sm:col-span-2 lg:col-span-2 xl:col-span-3'
+                                    }
                                     value={item.url}
                                     placeholder="https://..."
                                     error={errors[`social_media.${index}.url`]}
@@ -195,14 +204,11 @@ export default function Index({ settings }) {
                                 />
 
                                 {data.social_media.length > 1 && (
-                                    <div className="flex justify-end sm:col-span-2 lg:col-span-3 xl:col-span-4">
-                                        <Button
-                                            type="button"
-                                            variant="outline"
+                                    <div className="flex items-end justify-end lg:col-span-1 xl:col-span-1">
+                                        <RemoveAction
+                                            title="Remove social link"
                                             onClick={() => removeSocialMedia(index)}
-                                        >
-                                            Remove
-                                        </Button>
+                                        />
                                     </div>
                                 )}
                             </AdminFormGrid>
