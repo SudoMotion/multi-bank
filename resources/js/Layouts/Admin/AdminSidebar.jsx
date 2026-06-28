@@ -46,7 +46,7 @@ export default function AdminSidebar({ open, onNavigate }) {
     return (
         <aside
             className={
-                'fixed bottom-10 left-0 top-14 z-40 flex w-60 flex-col border-r border-neutral-200 bg-neutral-50 transition-transform duration-300 ease-in-out lg:translate-x-0 ' +
+                'fixed bottom-0 left-0 top-14 z-40 flex w-60 flex-col border-r border-neutral-200 bg-neutral-50 transition-transform duration-300 ease-in-out lg:translate-x-0 ' +
                 (open ? 'translate-x-0' : '-translate-x-full')
             }
         >
@@ -57,9 +57,6 @@ export default function AdminSidebar({ open, onNavigate }) {
             </div>
 
             <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
-                <p className="mb-2 px-3 text-[11px] font-medium uppercase tracking-wider text-neutral-400">
-                    Menu
-                </p>
                 {navigation.map((item) => (
                     <AdminSidebarLink
                         key={item.name}
