@@ -71,27 +71,6 @@ export default function Index({ aboutUs }) {
                             onChange={(e) => setData('title', e.target.value)}
                         />
 
-                        <FormField label="Status" error={errors.status}>
-                            <div className="flex flex-wrap gap-4 pt-1">
-                                <Radio
-                                    id="status_active"
-                                    name="status"
-                                    value="active"
-                                    label="Active"
-                                    checked={data.status === 'active'}
-                                    onChange={() => setData('status', 'active')}
-                                />
-                                <Radio
-                                    id="status_inactive"
-                                    name="status"
-                                    value="inactive"
-                                    label="Inactive"
-                                    checked={data.status === 'inactive'}
-                                    onChange={() => setData('status', 'inactive')}
-                                />
-                            </div>
-                        </FormField>
-
                         <Textarea
                             id="description"
                             label="Description"
@@ -126,6 +105,31 @@ export default function Index({ aboutUs }) {
                                 </p>
                             )}
                         </FileInput>
+
+                        <FormField
+                            label="Status"
+                            error={errors.status}
+                            className="sm:col-span-2 lg:col-span-3 xl:col-span-4"
+                        >
+                            <div className="flex flex-wrap gap-4 pt-1">
+                                <Radio
+                                    id="status_active"
+                                    name="status"
+                                    value="active"
+                                    label="Active"
+                                    checked={data.status === 'active'}
+                                    onChange={() => setData('status', 'active')}
+                                />
+                                <Radio
+                                    id="status_inactive"
+                                    name="status"
+                                    value="inactive"
+                                    label="Inactive"
+                                    checked={data.status === 'inactive'}
+                                    onChange={() => setData('status', 'inactive')}
+                                />
+                            </div>
+                        </FormField>
                     </AdminFormGrid>
 
                     <div className="mt-4 flex justify-end">
