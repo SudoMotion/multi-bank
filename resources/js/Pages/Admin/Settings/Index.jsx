@@ -19,12 +19,14 @@ import { useState } from 'react';
 export default function Index({ settings }) {
     const { flash } = usePage().props;
     const [logoPreview, setLogoPreview] = useState(settings.logo_url);
+    const [faviconPreview, setFaviconPreview] = useState(settings.favicon_preview_url);
 
     const { data, setData, post, processing, errors, progress } = useForm({
         application_name: settings.application_name ?? '',
         email: settings.email ?? '',
         phone: settings.phone ?? '',
         logo: null,
+        favicon: null,
         address: settings.address ?? '',
         google_map_embed_link: settings.google_map_embed_link ?? '',
         social_media: settings.social_media?.length
@@ -47,6 +49,15 @@ export default function Index({ settings }) {
         if (file) {
             setData('logo', file);
             setLogoPreview(URL.createObjectURL(file));
+        }
+    };
+
+    const handleFaviconChange = (e) => {
+        const file = e.target.files[0];
+
+        if (file) {
+            setData('favicon', file);
+            setFaviconPreview(URL.createObjectURL(file));
         }
     };
 
@@ -143,6 +154,29 @@ export default function Index({ settings }) {
                                 <p className="mt-2 text-sm text-neutral-500">
                                     Uploading: {progress.percentage}%
                                 </p>
+                            )}
+                        </FileInput>
+
+                        <FileInput
+                            id="favicon"
+                            label="Favicon"
+                            wrapperClassName="sm:col-span-2 lg:col-span-1 xl:col-span-2"
+                            accept="image/*,.ico"
+                            error={errors.favicon}
+                            hint="ICO, PNG or SVG. Max 512KB. Uses logo if empty."
+                            placeholder={
+                                faviconPreview ? 'Replace current favicon' : 'No file chosen'
+                            }
+                            onChange={handleFaviconChange}
+                        >
+                            {faviconPreview && (
+                                <div className="mt-3 inline-flex rounded-md border border-neutral-200 bg-neutral-50 p-2">
+                                    <img
+                                        src={faviconPreview}
+                                        alt="Favicon preview"
+                                        className="h-8 w-8 object-contain"
+                                    />
+                                </div>
                             )}
                         </FileInput>
 

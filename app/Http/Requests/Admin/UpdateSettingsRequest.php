@@ -57,6 +57,7 @@ class UpdateSettingsRequest extends FormRequest
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:50'],
             'logo' => ['nullable', 'image', 'max:2048'],
+            'favicon' => ['nullable', 'file', 'mimes:ico,png,svg,jpg,jpeg,webp', 'max:512'],
             'address' => ['nullable', 'string', 'max:1000'],
             'google_map_embed_link' => ['nullable', 'string', 'max:2000'],
             'social_media' => ['nullable', 'array'],

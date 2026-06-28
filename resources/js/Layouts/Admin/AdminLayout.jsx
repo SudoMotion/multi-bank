@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import SiteFavicon from '@/Components/SiteFavicon';
 import AdminFooter from './AdminFooter';
 import AdminSidebar from './AdminSidebar';
 import AdminTopbar from './AdminTopbar';
@@ -11,6 +12,7 @@ export default function AdminLayout({ title, children }) {
 
     return (
         <div className="min-h-screen bg-neutral-100">
+            <SiteFavicon />
             <AdminTopbar title={title} onToggleSidebar={toggleSidebar} />
 
             {sidebarOpen && (

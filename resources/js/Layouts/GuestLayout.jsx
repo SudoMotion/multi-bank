@@ -1,9 +1,11 @@
 import AppLogo from '@/Components/AppLogo';
+import SiteFavicon from '@/Components/SiteFavicon';
 import { Link } from '@inertiajs/react';
 
 export default function GuestLayout({ children }) {
     return (
         <div className="flex min-h-screen flex-col items-center bg-neutral-100 pt-6 sm:justify-center sm:pt-0">
+            <SiteFavicon />
             <div>
                 <Link href="/">
                     <AppLogo className="h-16 w-auto max-w-[200px] fill-current text-neutral-700" />

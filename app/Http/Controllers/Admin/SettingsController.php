@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateSettingsRequest;
 use App\Models\Setting;
 use App\Support\GoogleMapEmbed;
+use App\Support\SiteData;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -23,6 +24,8 @@ class SettingsController extends Controller
                 'email' => $settings->email,
                 'phone' => $settings->phone,
                 'logo_url' => $settings->logo ? Storage::url($settings->logo) : null,
+                'favicon_url' => $settings->favicon ? Storage::url($settings->favicon) : null,
+                'favicon_preview_url' => SiteData::faviconUrl($settings),
                 'address' => $settings->address,
                 'google_map_embed_link' => GoogleMapEmbed::normalize($settings->google_map_embed_link),
                 'social_media' => $settings->social_media ?? [],
@@ -33,7 +36,7 @@ class SettingsController extends Controller
     public function update(UpdateSettingsRequest $request): RedirectResponse
     {
         $settings = Setting::current();
-        $data = $request->safe()->except('logo');
+        $data = $request->safe()->except(['logo', 'favicon']);
 
         if ($request->hasFile('logo')) {
             if ($settings->logo) {
@@ -41,6 +44,14 @@ class SettingsController extends Controller
             }
 
             $data['logo'] = $request->file('logo')->store('logos', 'public');
+        }
+
+        if ($request->hasFile('favicon')) {
+            if ($settings->favicon) {
+                Storage::disk('public')->delete($settings->favicon);
+            }
+
+            $data['favicon'] = $request->file('favicon')->store('favicons', 'public');
         }
 
         $data['social_media'] = collect($request->input('social_media', []))

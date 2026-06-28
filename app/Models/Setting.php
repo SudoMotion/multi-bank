@@ -14,6 +14,7 @@ class Setting extends Model
         'email',
         'phone',
         'logo',
+        'favicon',
         'address',
         'google_map_embed_link',
         'social_media',
