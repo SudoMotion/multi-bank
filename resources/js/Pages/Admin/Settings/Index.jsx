@@ -84,7 +84,7 @@ export default function Index({ settings }) {
                         <Input
                             id="application_name"
                             label="Application Name"
-                            wrapperClassName="sm:col-span-2"
+                            wrapperClassName="sm:col-span-2 lg:col-span-1 xl:col-span-2"
                             value={data.application_name}
                             error={errors.application_name}
                             onChange={(e) => setData('application_name', e.target.value)}
@@ -110,7 +110,7 @@ export default function Index({ settings }) {
                         <Textarea
                             id="address"
                             label="Address"
-                            wrapperClassName="sm:col-span-2"
+                            wrapperClassName="sm:col-span-2 lg:col-span-3 xl:col-span-4"
                             value={data.address}
                             error={errors.address}
                             onChange={(e) => setData('address', e.target.value)}
@@ -119,7 +119,7 @@ export default function Index({ settings }) {
                         <FileInput
                             id="logo"
                             label="Logo"
-                            wrapperClassName="sm:col-span-2"
+                            wrapperClassName="sm:col-span-2 lg:col-span-1 xl:col-span-2"
                             accept="image/*"
                             error={errors.logo}
                             hint="PNG, JPG or SVG. Max 2MB."
@@ -145,7 +145,7 @@ export default function Index({ settings }) {
                         <Input
                             id="google_map_embed_link"
                             label="Google Map Embed Link"
-                            wrapperClassName="sm:col-span-2"
+                            wrapperClassName="sm:col-span-2 lg:col-span-2 xl:col-span-2"
                             value={data.google_map_embed_link}
                             placeholder="https://www.google.com/maps/embed?..."
                             error={errors.google_map_embed_link}
@@ -173,6 +173,7 @@ export default function Index({ settings }) {
                                 <Input
                                     id={`social_platform_${index}`}
                                     label="Platform"
+                                    wrapperClassName="lg:col-span-1 xl:col-span-1"
                                     value={item.platform}
                                     placeholder="Facebook, Instagram, etc."
                                     error={errors[`social_media.${index}.platform`]}
@@ -184,6 +185,7 @@ export default function Index({ settings }) {
                                 <Input
                                     id={`social_url_${index}`}
                                     label="URL"
+                                    wrapperClassName="sm:col-span-2 lg:col-span-2 xl:col-span-3"
                                     value={item.url}
                                     placeholder="https://..."
                                     error={errors[`social_media.${index}.url`]}
@@ -193,7 +195,7 @@ export default function Index({ settings }) {
                                 />
 
                                 {data.social_media.length > 1 && (
-                                    <div className="sm:col-span-2 flex justify-end">
+                                    <div className="flex justify-end sm:col-span-2 lg:col-span-3 xl:col-span-4">
                                         <Button
                                             type="button"
                                             variant="outline"
