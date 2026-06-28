@@ -117,21 +117,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::middleware('permission:about-us.view')->group(function () {
             Route::get('about-us', [AboutUsController::class, 'index'])->name('about-us.index');
-            Route::get('about-us/create', [AboutUsController::class, 'create'])
-                ->middleware('permission:about-us.create')
-                ->name('about-us.create');
-            Route::post('about-us', [AboutUsController::class, 'store'])
-                ->middleware('permission:about-us.create')
-                ->name('about-us.store');
-            Route::get('about-us/{aboutUs}/edit', [AboutUsController::class, 'edit'])
-                ->middleware('permission:about-us.edit')
-                ->name('about-us.edit');
-            Route::put('about-us/{aboutUs}', [AboutUsController::class, 'update'])
-                ->middleware('permission:about-us.edit')
+            Route::post('about-us', [AboutUsController::class, 'update'])
+                ->middleware('permission:about-us.update')
                 ->name('about-us.update');
-            Route::delete('about-us/{aboutUs}', [AboutUsController::class, 'destroy'])
-                ->middleware('permission:about-us.delete')
-                ->name('about-us.destroy');
         });
 
         Route::middleware('permission:settings.view')->group(function () {

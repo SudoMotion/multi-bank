@@ -17,4 +17,13 @@ class AboutUs extends Model
         'image',
         'status',
     ];
+
+    public static function current(): self
+    {
+        return static::query()->firstOrCreate([], [
+            'title' => '',
+            'description' => '',
+            'status' => 'active',
+        ]);
+    }
 }

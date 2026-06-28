@@ -23,9 +23,7 @@ class Permissions
             ],
             'About Us' => [
                 'about-us.view' => 'View About Us',
-                'about-us.create' => 'Create About Us',
-                'about-us.edit' => 'Edit About Us',
-                'about-us.delete' => 'Delete About Us',
+                'about-us.update' => 'Update About Us',
             ],
             'Settings' => [
                 'settings.view' => 'View Settings',
