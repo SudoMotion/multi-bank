@@ -66,6 +66,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     });
 
     Route::middleware(['auth', 'verified'])->group(function () {
+        Route::redirect('/', '/admin/dashboard')->name('index');
+
         Route::get('dashboard', function () {
             return Inertia::render('Admin/Dashboard/Index');
         })->middleware('permission:dashboard.view')->name('dashboard');
