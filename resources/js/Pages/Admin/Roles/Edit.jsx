@@ -25,7 +25,7 @@ export default function Edit({ role }) {
             />
 
             {role.is_protected && (
-                <Alert className="mb-4">
+                <Alert inline className="mb-4">
                     The superadmin role name cannot be changed.
                 </Alert>
             )}

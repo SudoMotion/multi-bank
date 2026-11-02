@@ -7,6 +7,7 @@ import {
     ViewAction,
 } from './ActionButtons';
 import Alert from './Alert';
+import { ToastProvider, useToast } from './toast';
 import Button from './Button';
 import Card from './Card';
 import Checkbox from './Checkbox';
@@ -24,6 +25,8 @@ export {
     ActionButtonGroup,
     AddAction,
     Alert,
+    ToastProvider,
+    useToast,
     Button,
     Card,
     Checkbox,
