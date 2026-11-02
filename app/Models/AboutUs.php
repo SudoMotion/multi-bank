@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Model;
 
 class AboutUs extends Model
 {
+    use BelongsToTenant;
+
     protected $table = 'about_us';
 
     /**

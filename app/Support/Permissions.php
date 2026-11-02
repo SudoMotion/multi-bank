@@ -2,9 +2,13 @@
 
 namespace App\Support;
 
+use App\Tenancy\TenantContext;
+
 class Permissions
 {
     public const SUPERADMIN_ROLE = 'superadmin';
+
+    public const BANK_ADMIN_ROLE = 'bank-admin';
 
     /**
      * @return array<string, array<string, string>>
@@ -14,6 +18,11 @@ class Permissions
         return [
             'Dashboard' => [
                 'dashboard.view' => 'View Dashboard',
+            ],
+            'Banks' => [
+                'tenants.view' => 'View Banks',
+                'tenants.create' => 'Create Banks',
+                'tenants.edit' => 'Edit & Activate Banks',
             ],
             'Users' => [
                 'users.view' => 'View Users',
@@ -56,5 +65,42 @@ class Permissions
         }
 
         return $permissions;
+    }
+
+    /**
+     * Permissions that only make sense on the platform (central) domain.
+     * Their routes are also guarded by the "central" middleware.
+     *
+     * @return list<string>
+     */
+    public static function centralOnly(): array
+    {
+        return array_values(array_filter(
+            self::all(),
+            fn (string $permission) => str_starts_with($permission, 'tenants.')
+                || str_starts_with($permission, 'roles.')
+                || str_starts_with($permission, 'permissions.'),
+        ));
+    }
+
+    /**
+     * Roles that may not be assigned in the current context. Bank users can
+     * never hold the platform superadmin role.
+     *
+     * @return list<string>
+     */
+    public static function restrictedRoles(): array
+    {
+        return app(TenantContext::class)->check() ? [self::SUPERADMIN_ROLE] : [];
+    }
+
+    /**
+     * Default permissions for a bank's own administrator.
+     *
+     * @return list<string>
+     */
+    public static function bankAdminDefaults(): array
+    {
+        return array_values(array_diff(self::all(), self::centralOnly()));
     }
 }

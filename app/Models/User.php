@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Support\Permissions;
+use App\Tenancy\Concerns\BelongsToTenant;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -16,7 +18,7 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, Notifiable;
+    use BelongsToTenant, HasFactory, HasRoles, Notifiable;
 
     /**
      * Get the attributes that should be cast.
@@ -29,5 +31,19 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isPlatformUser(): bool
+    {
+        return $this->tenant_id === null;
+    }
+
+    /**
+     * The superadmin bypass only applies to platform users, so a bank user can
+     * never gain platform-wide access through a role assignment.
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->isPlatformUser() && $this->hasRole(Permissions::SUPERADMIN_ROLE);
     }
 }

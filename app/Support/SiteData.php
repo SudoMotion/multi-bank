@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Models\AboutUs;
 use App\Models\Setting;
+use App\Tenancy\TenantContext;
 use Illuminate\Support\Facades\Storage;
 
 class SiteData
@@ -16,11 +17,18 @@ class SiteData
             return Storage::url($settings->favicon);
         }
 
+        return self::logoUrl($settings);
+    }
+
+    public static function logoUrl(?Setting $settings = null): ?string
+    {
+        $settings ??= Setting::current();
+
         if ($settings->logo) {
             return Storage::url($settings->logo);
         }
 
-        return null;
+        return app(TenantContext::class)->get()?->logoUrl();
     }
 
     /**
@@ -29,13 +37,14 @@ class SiteData
     public static function settings(): array
     {
         $settings = Setting::current();
+        $tenant = app(TenantContext::class)->get();
 
         return [
-            'name' => $settings->application_name ?: config('app.name'),
+            'name' => $settings->application_name ?: ($tenant?->name ?? config('app.name')),
             'email' => $settings->email,
             'phone' => $settings->phone,
             'address' => $settings->address,
-            'logo_url' => $settings->logo ? Storage::url($settings->logo) : null,
+            'logo_url' => self::logoUrl($settings),
             'favicon_url' => self::faviconUrl($settings),
             'favicon_only_url' => $settings->favicon ? Storage::url($settings->favicon) : null,
             'google_map_embed_link' => GoogleMapEmbed::normalize($settings->google_map_embed_link),
