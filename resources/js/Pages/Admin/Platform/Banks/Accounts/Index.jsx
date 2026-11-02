@@ -1,0 +1,88 @@
+import FilterBar from '@/Components/Admin/FilterBar';
+import { Button, Card, Pagination, StatusBadge, Table, Td, Th, ViewAction } from '@/Components/UI';
+import BankWorkspaceLayout from '@/Layouts/Admin/BankWorkspaceLayout';
+import { Link } from '@inertiajs/react';
+
+export default function Index({ workspace, accounts, filters, statuses, types, can }) {
+    const bankId = workspace.bank.id;
+
+    return (
+        <BankWorkspaceLayout
+            workspace={workspace}
+            title="Accounts"
+            description="Every deposit account held at this bank."
+            actions={
+                can.create ? (
+                    <Link href={route('admin.platform.banks.accounts.create', bankId)}>
+                        <Button>Open account</Button>
+                    </Link>
+                ) : null
+            }
+        >
+            <Card bodyClassName="p-0">
+                <FilterBar
+                    url={route('admin.platform.banks.accounts.index', bankId)}
+                    filters={filters}
+                    fields={[
+                        { name: 'search', label: 'Search', placeholder: 'Account # or customer' },
+                        { name: 'type', label: 'Type', type: 'select', options: types },
+                        { name: 'status', label: 'Status', type: 'select', options: statuses },
+                    ]}
+                />
+
+                <Table
+                    isEmpty={accounts.data.length === 0}
+                    empty="No accounts match."
+                    head={
+                        <>
+                            <Th>Account</Th>
+                            <Th>Customer</Th>
+                            <Th>Type</Th>
+                            <Th>Status</Th>
+                            <Th align="right">Balance</Th>
+                            <Th align="right">Actions</Th>
+                        </>
+                    }
+                >
+                    {accounts.data.map((account) => (
+                        <tr key={account.id} className="hover:bg-neutral-50/50">
+                            <Td>
+                                <Link
+                                    href={route('admin.platform.banks.accounts.show', [bankId, account.id])}
+                                    className="font-mono text-neutral-900 hover:underline"
+                                >
+                                    {account.account_number}
+                                </Link>
+                            </Td>
+                            <Td>
+                                {account.customer && (
+                                    <Link
+                                        href={route('admin.platform.banks.customers.show', [bankId, account.customer.id])}
+                                        className="hover:underline"
+                                    >
+                                        <p className="text-neutral-800">{account.customer.name}</p>
+                                        <p className="font-mono text-xs text-neutral-500">
+                                            {account.customer.customer_number}
+                                        </p>
+                                    </Link>
+                                )}
+                            </Td>
+                            <Td>{account.type_label}</Td>
+                            <Td>
+                                <StatusBadge status={account.status} />
+                            </Td>
+                            <Td align="right" className="font-medium tabular-nums text-neutral-900">
+                                {account.balance.formatted}
+                            </Td>
+                            <Td align="right">
+                                <ViewAction href={route('admin.platform.banks.accounts.show', [bankId, account.id])} />
+                            </Td>
+                        </tr>
+                    ))}
+                </Table>
+
+                <Pagination paginator={accounts} />
+            </Card>
+        </BankWorkspaceLayout>
+    );
+}

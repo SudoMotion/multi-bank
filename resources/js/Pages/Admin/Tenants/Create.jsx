@@ -3,14 +3,14 @@ import TenantForm from '@/Components/Admin/TenantForm';
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
 import { Head, useForm } from '@inertiajs/react';
 
-export default function Create({ themes, baseDomain, defaultBranding }) {
+export default function Create({ themes, baseDomain, defaultTheme, defaultBranding }) {
     const form = useForm({
         name: '',
         slug: '',
         domain: '',
         tagline: '',
         logo: null,
-        theme: 'default',
+        theme: defaultTheme,
         branding: { ...defaultBranding },
         settings: { online_banking_url: '', show_in_directory: true },
         is_active: true,

@@ -2,13 +2,15 @@ import { useState } from 'react';
 import AdminSidebarLink from './AdminSidebarLink';
 import { cn } from '@/Components/UI/cn';
 
+const isActive = (item) => [].concat(item.active).some((pattern) => route().current(pattern));
+
 export default function AdminSidebarGroup({
     label,
     icon: Icon,
     items,
     onNavigate,
 }) {
-    const hasActiveChild = items.some((item) => route().current(item.active));
+    const hasActiveChild = items.some(isActive);
     const [open, setOpen] = useState(hasActiveChild);
 
     if (items.length === 0) {
@@ -58,7 +60,7 @@ export default function AdminSidebarGroup({
                         <AdminSidebarLink
                             key={item.name}
                             href={route(item.href)}
-                            active={route().current(item.active)}
+                            active={isActive(item)}
                             onNavigate={onNavigate}
                         >
                             {item.name}

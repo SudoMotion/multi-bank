@@ -1,7 +1,14 @@
 <?php
 
 use App\Http\Controllers\Admin\AboutUsController;
+use App\Http\Controllers\Admin\GlobalSettingsController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\Platform\AccountController;
+use App\Http\Controllers\Admin\Platform\BankSettingsController;
+use App\Http\Controllers\Admin\Platform\CustomerController;
+use App\Http\Controllers\Admin\Platform\OverviewController;
+use App\Http\Controllers\Admin\Platform\PlatformController;
+use App\Http\Controllers\Admin\Platform\TransactionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TenantController;
@@ -109,7 +116,93 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::patch('banks/{tenant}/status', [TenantController::class, 'toggleStatus'])
                 ->middleware('permission:tenants.edit')
                 ->name('tenants.status');
+            Route::delete('banks/{tenant}', [TenantController::class, 'destroy'])
+                ->middleware('permission:tenants.delete')
+                ->name('tenants.destroy');
         });
+
+        Route::middleware(['central', 'permission:global-settings.view'])->group(function () {
+            Route::get('global-settings', [GlobalSettingsController::class, 'index'])->name('global-settings.index');
+            Route::put('global-settings', [GlobalSettingsController::class, 'update'])
+                ->middleware('permission:global-settings.update')
+                ->name('global-settings.update');
+        });
+
+        Route::middleware(['central', 'permission:tenants.view'])
+            ->prefix('platform')
+            ->name('platform.')
+            ->group(function () {
+                Route::get('/', [PlatformController::class, 'index'])->name('index');
+
+                foreach (['customers', 'accounts', 'transactions', 'settings'] as $section) {
+                    Route::get($section, [PlatformController::class, 'go'])
+                        ->defaults('section', $section)
+                        ->name($section);
+                }
+
+                Route::prefix('banks/{tenant}')->name('banks.')->group(function () {
+                    Route::get('/', OverviewController::class)->name('overview');
+
+                    Route::middleware('permission:customers.view')->group(function () {
+                        Route::get('customers', [CustomerController::class, 'index'])->name('customers.index');
+                        Route::get('customers/create', [CustomerController::class, 'create'])
+                            ->middleware('permission:customers.create')
+                            ->name('customers.create');
+                        Route::post('customers', [CustomerController::class, 'store'])
+                            ->middleware('permission:customers.create')
+                            ->name('customers.store');
+                        Route::get('customers/{customer}', [CustomerController::class, 'show'])
+                            ->whereNumber('customer')
+                            ->name('customers.show');
+                        Route::get('customers/{customer}/edit', [CustomerController::class, 'edit'])
+                            ->whereNumber('customer')
+                            ->middleware('permission:customers.edit')
+                            ->name('customers.edit');
+                        Route::put('customers/{customer}', [CustomerController::class, 'update'])
+                            ->whereNumber('customer')
+                            ->middleware('permission:customers.edit')
+                            ->name('customers.update');
+                        Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])
+                            ->whereNumber('customer')
+                            ->middleware('permission:customers.delete')
+                            ->name('customers.destroy');
+                    });
+
+                    Route::middleware('permission:accounts.view')->group(function () {
+                        Route::get('accounts', [AccountController::class, 'index'])->name('accounts.index');
+                        Route::get('accounts/create', [AccountController::class, 'create'])
+                            ->middleware('permission:accounts.create')
+                            ->name('accounts.create');
+                        Route::post('accounts', [AccountController::class, 'store'])
+                            ->middleware('permission:accounts.create')
+                            ->name('accounts.store');
+                        Route::get('accounts/{account}', [AccountController::class, 'show'])
+                            ->whereNumber('account')
+                            ->name('accounts.show');
+                        Route::patch('accounts/{account}/status', [AccountController::class, 'updateStatus'])
+                            ->whereNumber('account')
+                            ->middleware('permission:accounts.edit')
+                            ->name('accounts.status');
+                    });
+
+                    Route::middleware('permission:transactions.view')->group(function () {
+                        Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
+                        Route::get('transactions/create', [TransactionController::class, 'create'])
+                            ->middleware('permission:transactions.create')
+                            ->name('transactions.create');
+                        Route::post('transactions', [TransactionController::class, 'store'])
+                            ->middleware('permission:transactions.create')
+                            ->name('transactions.store');
+                    });
+
+                    Route::middleware('permission:settings.view')->group(function () {
+                        Route::get('settings', [BankSettingsController::class, 'index'])->name('settings.index');
+                        Route::post('settings', [BankSettingsController::class, 'update'])
+                            ->middleware('permission:settings.update')
+                            ->name('settings.update');
+                    });
+                });
+            });
 
         Route::middleware(['central', 'permission:roles.view'])->group(function () {
             Route::get('roles', [RoleController::class, 'index'])->name('roles.index');

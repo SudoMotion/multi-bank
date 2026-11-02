@@ -21,7 +21,7 @@ function linkHref(link) {
 }
 
 function CentralBrand() {
-    const { site } = usePage().props;
+    const { site, landing } = usePage().props;
 
     return (
         <>
@@ -31,7 +31,7 @@ function CentralBrand() {
                 className="h-10 w-10 shrink-0 object-contain"
             />
             <span className="hidden text-sm font-semibold leading-snug text-brand-purple sm:block sm:max-w-[14rem] md:max-w-none lg:text-base">
-                Canadian Deposit Insurance Corporation
+                {landing?.brand_title ?? site.name}
             </span>
             <span className="text-sm font-semibold text-brand-purple sm:hidden">{site.name}</span>
         </>
@@ -68,9 +68,12 @@ function SignInButton({ url, className = '' }) {
 
 function FrontendNavbar() {
     const tenant = useTenant();
+    const { landing } = usePage().props;
     const [mobileOpen, setMobileOpen] = useState(false);
 
-    const links = tenant ? tenantLinks : centralLinks;
+    const links = tenant
+        ? tenantLinks
+        : centralLinks.filter((link) => link.hash !== '#calculator' || landing?.show_calculator);
     const signInUrl = tenant?.settings?.online_banking_url;
     const linkClassName = tenant
         ? 'text-sm font-medium text-neutral-700 transition hover:text-tenant-primary'

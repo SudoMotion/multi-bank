@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\GlobalSettings;
 use App\Support\Permissions;
 use App\Support\SiteData;
 use App\Tenancy\TenantContext;
@@ -50,9 +51,11 @@ class HandleInertiaRequests extends Middleware
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
             ],
             'site' => fn () => SiteData::settings(),
             'tenant' => $tenant?->toContext(),
+            'landing' => fn () => $tenant ? null : app(GlobalSettings::class)->group('landing'),
             'tenancy' => [
                 'isCentral' => $tenant === null,
             ],

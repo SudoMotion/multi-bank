@@ -23,6 +23,26 @@ class Permissions
                 'tenants.view' => 'View Banks',
                 'tenants.create' => 'Create Banks',
                 'tenants.edit' => 'Edit & Activate Banks',
+                'tenants.delete' => 'Delete Banks',
+            ],
+            'Customers' => [
+                'customers.view' => 'View Customers',
+                'customers.create' => 'Create Customers',
+                'customers.edit' => 'Edit Customers',
+                'customers.delete' => 'Delete Customers',
+            ],
+            'Accounts' => [
+                'accounts.view' => 'View Accounts',
+                'accounts.create' => 'Open Accounts',
+                'accounts.edit' => 'Freeze & Close Accounts',
+            ],
+            'Transactions' => [
+                'transactions.view' => 'View Transactions',
+                'transactions.create' => 'Post Transactions',
+            ],
+            'Global Settings' => [
+                'global-settings.view' => 'View Global Settings',
+                'global-settings.update' => 'Update Global Settings',
             ],
             'Users' => [
                 'users.view' => 'View Users',
@@ -79,7 +99,8 @@ class Permissions
             self::all(),
             fn (string $permission) => str_starts_with($permission, 'tenants.')
                 || str_starts_with($permission, 'roles.')
-                || str_starts_with($permission, 'permissions.'),
+                || str_starts_with($permission, 'permissions.')
+                || str_starts_with($permission, 'global-settings.'),
         ));
     }
 

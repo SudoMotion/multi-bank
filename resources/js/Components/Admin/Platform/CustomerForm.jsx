@@ -1,0 +1,84 @@
+import { AdminForm, AdminFormGrid } from '@/Components/Admin/AdminForm';
+import { Button, Card, Input, Select, Textarea } from '@/Components/UI';
+import { Link } from '@inertiajs/react';
+
+export default function CustomerForm({ form, onSubmit, statuses, cancelHref, submitLabel }) {
+    const { data, setData, processing, errors } = form;
+
+    return (
+        <AdminForm onSubmit={onSubmit} className="space-y-4">
+            <Card title="Customer Details">
+                <AdminFormGrid>
+                    <Input
+                        id="first_name"
+                        label="First Name"
+                        required
+                        value={data.first_name}
+                        error={errors.first_name}
+                        onChange={(e) => setData('first_name', e.target.value)}
+                    />
+                    <Input
+                        id="last_name"
+                        label="Last Name"
+                        required
+                        value={data.last_name}
+                        error={errors.last_name}
+                        onChange={(e) => setData('last_name', e.target.value)}
+                    />
+                    <Input
+                        id="email"
+                        label="Email"
+                        type="email"
+                        value={data.email}
+                        error={errors.email}
+                        onChange={(e) => setData('email', e.target.value)}
+                    />
+                    <Input
+                        id="phone"
+                        label="Phone"
+                        value={data.phone}
+                        error={errors.phone}
+                        onChange={(e) => setData('phone', e.target.value)}
+                    />
+                    <Input
+                        id="date_of_birth"
+                        label="Date of Birth"
+                        type="date"
+                        value={data.date_of_birth}
+                        error={errors.date_of_birth}
+                        onChange={(e) => setData('date_of_birth', e.target.value)}
+                    />
+                    <Select
+                        id="status"
+                        label="Status"
+                        required
+                        placeholder={null}
+                        options={statuses}
+                        value={data.status}
+                        error={errors.status}
+                        onChange={(e) => setData('status', e.target.value)}
+                    />
+                    <Textarea
+                        id="address"
+                        label="Address"
+                        wrapperClassName="sm:col-span-2 lg:col-span-3 xl:col-span-4"
+                        value={data.address}
+                        error={errors.address}
+                        onChange={(e) => setData('address', e.target.value)}
+                    />
+                </AdminFormGrid>
+            </Card>
+
+            <div className="flex justify-end gap-3">
+                <Link href={cancelHref}>
+                    <Button type="button" variant="secondary">
+                        Cancel
+                    </Button>
+                </Link>
+                <Button type="submit" disabled={processing}>
+                    {submitLabel}
+                </Button>
+            </div>
+        </AdminForm>
+    );
+}

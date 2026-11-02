@@ -42,6 +42,21 @@ class Tenant extends Model
         return $this->hasMany(User::class)->withoutGlobalScope(TenantScope::class);
     }
 
+    public function customers(): HasMany
+    {
+        return $this->hasMany(Customer::class)->withoutGlobalScope(TenantScope::class);
+    }
+
+    public function accounts(): HasMany
+    {
+        return $this->hasMany(Account::class)->withoutGlobalScope(TenantScope::class);
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class)->withoutGlobalScope(TenantScope::class);
+    }
+
     public function scopeActive(Builder $query): void
     {
         $query->where('is_active', true);

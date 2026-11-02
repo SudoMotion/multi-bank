@@ -1,29 +1,24 @@
 import AdminPageHeader from '@/Components/Admin/AdminPageHeader';
+import DeleteBankDialog from '@/Components/Admin/DeleteBankDialog';
 import AdminLayout from '@/Layouts/Admin/AdminLayout';
-import { ActionButtonGroup, Alert, Button, Card, EditAction } from '@/Components/UI';
+import {
+    ActionButtonGroup,
+    Alert,
+    Badge,
+    Button,
+    Card,
+    DeleteAction,
+    EditAction,
+} from '@/Components/UI';
 import { Head, Link, usePage } from '@inertiajs/react';
-
-function StatusBadge({ active }) {
-    return (
-        <span
-            className={
-                'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ' +
-                (active ? 'bg-green-50 text-green-700' : 'bg-neutral-100 text-neutral-500')
-            }
-        >
-            <span
-                className={'h-1.5 w-1.5 rounded-full ' + (active ? 'bg-green-500' : 'bg-neutral-400')}
-            />
-            {active ? 'Active' : 'Inactive'}
-        </span>
-    );
-}
+import { useState } from 'react';
 
 const headerCell =
     'px-4 py-2.5 text-left text-xs font-medium uppercase tracking-wide text-neutral-500';
 
 export default function Index({ tenants, can }) {
     const { flash } = usePage().props;
+    const [deleting, setDeleting] = useState(null);
 
     return (
         <AdminLayout title="Banks">
@@ -42,6 +37,7 @@ export default function Index({ tenants, can }) {
             />
 
             {flash?.success && <Alert variant="success">{flash.success}</Alert>}
+            {flash?.error && <Alert variant="error">{flash.error}</Alert>}
 
             <Card bodyClassName="p-0">
                 <div className="overflow-x-auto">
@@ -52,6 +48,8 @@ export default function Index({ tenants, can }) {
                                 <th className={headerCell}>Domain</th>
                                 <th className={headerCell}>Theme</th>
                                 <th className={headerCell}>Users</th>
+                                <th className={headerCell}>Customers</th>
+                                <th className={headerCell}>Accounts</th>
                                 <th className={headerCell}>Status</th>
                                 <th className={headerCell + ' text-right'}>Actions</th>
                             </tr>
@@ -59,7 +57,7 @@ export default function Index({ tenants, can }) {
                         <tbody className="divide-y divide-neutral-100 bg-white">
                             {tenants.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="px-4 py-10 text-center text-sm text-neutral-500">
+                                    <td colSpan={8} className="px-4 py-10 text-center text-sm text-neutral-500">
                                         No banks yet.
                                     </td>
                                 </tr>
@@ -110,29 +108,55 @@ export default function Index({ tenants, can }) {
                                     <td className="whitespace-nowrap px-4 py-3 text-sm text-neutral-600">
                                         {tenant.users_count}
                                     </td>
+                                    <td className="whitespace-nowrap px-4 py-3 text-sm text-neutral-600">
+                                        {tenant.customers_count}
+                                    </td>
+                                    <td className="whitespace-nowrap px-4 py-3 text-sm text-neutral-600">
+                                        {tenant.accounts_count}
+                                    </td>
                                     <td className="whitespace-nowrap px-4 py-3">
-                                        <StatusBadge active={tenant.is_active} />
+                                        <Badge variant={tenant.is_active ? 'success' : 'neutral'}>
+                                            {tenant.is_active ? 'Active' : 'Inactive'}
+                                        </Badge>
                                     </td>
                                     <td className="whitespace-nowrap px-4 py-3 text-right">
-                                        {can.edit && (
-                                            <ActionButtonGroup className="justify-end">
-                                                <Link
-                                                    href={route('admin.tenants.status', tenant.id)}
-                                                    method="patch"
-                                                    as="button"
-                                                    preserveScroll
-                                                    className={
-                                                        'rounded-md border px-3 py-1.5 text-xs font-medium transition ' +
-                                                        (tenant.is_active
-                                                            ? 'border-red-200 text-red-600 hover:bg-red-50'
-                                                            : 'border-green-200 text-green-700 hover:bg-green-50')
+                                        <ActionButtonGroup className="justify-end">
+                                            <Link
+                                                href={route('admin.platform.banks.overview', tenant.id)}
+                                                className="rounded-md border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-700 transition hover:bg-neutral-50"
+                                            >
+                                                Manage
+                                            </Link>
+                                            {can.edit && (
+                                                <>
+                                                    <Link
+                                                        href={route('admin.tenants.status', tenant.id)}
+                                                        method="patch"
+                                                        as="button"
+                                                        preserveScroll
+                                                        className={
+                                                            'rounded-md border px-3 py-1.5 text-xs font-medium transition ' +
+                                                            (tenant.is_active
+                                                                ? 'border-red-200 text-red-600 hover:bg-red-50'
+                                                                : 'border-green-200 text-green-700 hover:bg-green-50')
+                                                        }
+                                                    >
+                                                        {tenant.is_active ? 'Deactivate' : 'Activate'}
+                                                    </Link>
+                                                    <EditAction href={route('admin.tenants.edit', tenant.id)} />
+                                                </>
+                                            )}
+                                            {can.delete && (
+                                                <DeleteAction
+                                                    title={
+                                                        tenant.is_active
+                                                            ? 'Deactivate before deleting'
+                                                            : 'Delete bank'
                                                     }
-                                                >
-                                                    {tenant.is_active ? 'Deactivate' : 'Activate'}
-                                                </Link>
-                                                <EditAction href={route('admin.tenants.edit', tenant.id)} />
-                                            </ActionButtonGroup>
-                                        )}
+                                                    onClick={() => setDeleting(tenant)}
+                                                />
+                                            )}
+                                        </ActionButtonGroup>
                                     </td>
                                 </tr>
                             ))}
@@ -140,6 +164,8 @@ export default function Index({ tenants, can }) {
                     </table>
                 </div>
             </Card>
+
+            <DeleteBankDialog bank={deleting} onClose={() => setDeleting(null)} />
         </AdminLayout>
     );
 }

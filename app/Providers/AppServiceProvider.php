@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Support\GlobalSettings;
 use App\Tenancy\TenantContext;
 use App\Tenancy\ThemeRegistry;
 use Illuminate\Auth\Notifications\ResetPassword;
@@ -18,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->scoped(TenantContext::class);
+        $this->app->scoped(GlobalSettings::class);
         $this->app->singleton(ThemeRegistry::class);
     }
 

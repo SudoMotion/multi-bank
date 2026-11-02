@@ -1,0 +1,93 @@
+<?php
+
+namespace App\Models;
+
+use App\Tenancy\Concerns\BelongsToTenant;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Customer extends Model
+{
+    use BelongsToTenant;
+
+    public const STATUS_ACTIVE = 'active';
+
+    public const STATUS_SUSPENDED = 'suspended';
+
+    public const STATUSES = [
+        self::STATUS_ACTIVE => 'Active',
+        self::STATUS_SUSPENDED => 'Suspended',
+    ];
+
+    /**
+     * @var list<string>
+     */
+    protected $fillable = [
+        'first_name',
+        'last_name',
+        'email',
+        'phone',
+        'date_of_birth',
+        'address',
+        'status',
+    ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'date_of_birth' => 'date',
+        ];
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (Customer $customer) {
+            $customer->customer_number ??= static::generateNumber();
+        });
+    }
+
+    public static function generateNumber(): string
+    {
+        do {
+            $number = 'C'.random_int(10000000, 99999999);
+        } while (static::query()->where('customer_number', $number)->exists());
+
+        return $number;
+    }
+
+    public function accounts(): HasMany
+    {
+        return $this->hasMany(Account::class);
+    }
+
+    public function fullName(): string
+    {
+        return trim("{$this->first_name} {$this->last_name}");
+    }
+
+    public function isActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    public function scopeSearch(Builder $query, ?string $term): Builder
+    {
+        if (blank($term)) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $query) use ($term) {
+            $like = '%'.addcslashes($term, '%_\\').'%';
+
+            $query->where('first_name', 'like', $like)
+                ->orWhere('last_name', 'like', $like)
+                ->orWhere('email', 'like', $like)
+                ->orWhere('customer_number', 'like', $like)
+                ->orWhereRaw("CONCAT(first_name, ' ', last_name) like ?", [$like]);
+        });
+    }
+}

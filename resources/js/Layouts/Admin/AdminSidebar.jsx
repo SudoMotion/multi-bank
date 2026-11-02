@@ -46,6 +46,23 @@ function BanksIcon({ className }) {
     );
 }
 
+function SuperAdminIcon({ className }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+        </svg>
+    );
+}
+
+const superAdminItems = [
+    { name: 'Bank Selector', href: 'admin.platform.index', active: ['admin.platform.index', 'admin.platform.banks.overview'], permission: 'tenants.view', centralOnly: true },
+    { name: 'Customers', href: 'admin.platform.customers', active: 'admin.platform.banks.customers.*', permission: 'customers.view', centralOnly: true },
+    { name: 'Accounts', href: 'admin.platform.accounts', active: 'admin.platform.banks.accounts.*', permission: 'accounts.view', centralOnly: true },
+    { name: 'Transactions', href: 'admin.platform.transactions', active: 'admin.platform.banks.transactions.*', permission: 'transactions.view', centralOnly: true },
+    { name: 'Bank Site Settings', href: 'admin.platform.settings', active: 'admin.platform.banks.settings.*', permission: 'settings.view', centralOnly: true },
+    { name: 'Global Settings', href: 'admin.global-settings.index', active: 'admin.global-settings.*', permission: 'global-settings.view', centralOnly: true },
+];
+
 const accessControlItems = [
     { name: 'Users', href: 'admin.users.index', active: 'admin.users.*', permission: 'users.view' },
     { name: 'Roles', href: 'admin.roles.index', active: 'admin.roles.*', permission: 'roles.view', centralOnly: true },
@@ -64,6 +81,7 @@ export default function AdminSidebar({ open, onNavigate }) {
     const isCentral = useIsCentral();
     const isVisible = (item) => can(item.permission) && (isCentral || !item.centralOnly);
 
+    const visibleSuperAdminItems = superAdminItems.filter(isVisible);
     const visibleAccessItems = accessControlItems.filter(isVisible);
     const visibleTopLevelItems = topLevelItems.filter(isVisible);
 
@@ -92,6 +110,15 @@ export default function AdminSidebar({ open, onNavigate }) {
                         {item.name}
                     </AdminSidebarLink>
                 ))}
+
+                {visibleSuperAdminItems.length > 0 && (
+                    <AdminSidebarGroup
+                        label="Super Admin"
+                        icon={SuperAdminIcon}
+                        items={visibleSuperAdminItems}
+                        onNavigate={onNavigate}
+                    />
+                )}
 
                 {visibleAccessItems.length > 0 && (
                     <AdminSidebarGroup

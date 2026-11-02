@@ -87,6 +87,7 @@ function TenantFooter({ year }) {
 
 function FrontendFooter() {
     const tenant = useTenant();
+    const { landing } = usePage().props;
     const year = new Date().getFullYear();
 
     if (tenant) {
@@ -99,7 +100,8 @@ function FrontendFooter() {
                 <CanadaMark light className="mb-6" />
                 <FooterLinks />
                 <p className="mt-8 text-sm text-white/70">
-                    &copy; {year} — Deposits with member institutions are protected.
+                    &copy; {year}
+                    {landing?.footer_text ? ` — ${landing.footer_text}` : ''}
                 </p>
             </Container>
         </footer>
