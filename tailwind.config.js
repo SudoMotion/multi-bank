@@ -21,6 +21,12 @@ export default {
                     'purple-dark': '#3A1F54',
                     'purple-light': '#5C3384',
                 },
+                tenant: {
+                    primary: 'rgb(var(--tenant-primary) / <alpha-value>)',
+                    'on-primary': 'rgb(var(--tenant-on-primary) / <alpha-value>)',
+                    secondary: 'rgb(var(--tenant-secondary) / <alpha-value>)',
+                    'on-secondary': 'rgb(var(--tenant-on-secondary) / <alpha-value>)',
+                },
             },
         },
     },

@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\UpdateSettingsRequest;
 use App\Models\Setting;
 use App\Support\GoogleMapEmbed;
 use App\Support\SiteData;
+use App\Tenancy\TenantContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -33,7 +34,7 @@ class SettingsController extends Controller
         ]);
     }
 
-    public function update(UpdateSettingsRequest $request): RedirectResponse
+    public function update(UpdateSettingsRequest $request, TenantContext $tenancy): RedirectResponse
     {
         $settings = Setting::current();
         $data = $request->safe()->except(['logo', 'favicon']);
@@ -43,7 +44,7 @@ class SettingsController extends Controller
                 Storage::disk('public')->delete($settings->logo);
             }
 
-            $data['logo'] = $request->file('logo')->store('logos', 'public');
+            $data['logo'] = $request->file('logo')->store($tenancy->storagePath('logos'), 'public');
         }
 
         if ($request->hasFile('favicon')) {
@@ -51,7 +52,7 @@ class SettingsController extends Controller
                 Storage::disk('public')->delete($settings->favicon);
             }
 
-            $data['favicon'] = $request->file('favicon')->store('favicons', 'public');
+            $data['favicon'] = $request->file('favicon')->store($tenancy->storagePath('favicons'), 'public');
         }
 
         $data['social_media'] = collect($request->input('social_media', []))

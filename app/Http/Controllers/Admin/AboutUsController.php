@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateAboutUsRequest;
 use App\Models\AboutUs;
+use App\Tenancy\TenantContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -26,7 +27,7 @@ class AboutUsController extends Controller
         ]);
     }
 
-    public function update(UpdateAboutUsRequest $request): RedirectResponse
+    public function update(UpdateAboutUsRequest $request, TenantContext $tenancy): RedirectResponse
     {
         $aboutUs = AboutUs::current();
         $data = $request->safe()->except('image');
@@ -36,7 +37,7 @@ class AboutUsController extends Controller
                 Storage::disk('public')->delete($aboutUs->image);
             }
 
-            $data['image'] = $request->file('image')->store('about-us', 'public');
+            $data['image'] = $request->file('image')->store($tenancy->storagePath('about-us'), 'public');
         }
 
         $aboutUs->update($data);

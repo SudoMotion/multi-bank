@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreUserRequest;
 use App\Http\Requests\Admin\UpdateUserRequest;
 use App\Models\User;
+use App\Support\Permissions;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -49,8 +50,9 @@ class UserController extends Controller
             'name' => $request->validated('name'),
             'email' => $request->validated('email'),
             'password' => $request->validated('password'),
-            'email_verified_at' => now(),
         ]);
+
+        $user->forceFill(['email_verified_at' => now()])->save();
 
         $user->syncRoles([$request->validated('role')]);
 
@@ -113,6 +115,7 @@ class UserController extends Controller
     private function roleOptions(): array
     {
         return Role::query()
+            ->whereNotIn('name', Permissions::restrictedRoles())
             ->orderBy('name')
             ->get(['name'])
             ->map(fn (Role $role) => [
