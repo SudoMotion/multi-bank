@@ -15,6 +15,13 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                brand: {
+                    purple: '#4B286D',
+                    'purple-dark': '#3A1F54',
+                    'purple-light': '#5C3384',
+                },
+            },
         },
     },
 

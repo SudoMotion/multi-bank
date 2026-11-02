@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" role="img" aria-label="TD Canada Trust">
+  <rect width="200" height="80" fill="#fff"/>
+  <rect x="24" y="22" width="36" height="36" rx="4" fill="#008A00"/>
+  <text x="42" y="48" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="20" font-weight="700">TD</text>
+  <text x="78" y="46" fill="#008A00" font-family="Arial,sans-serif" font-size="22" font-weight="700">Canada Trust</text>
+</svg>

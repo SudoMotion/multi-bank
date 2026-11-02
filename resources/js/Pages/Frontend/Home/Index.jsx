@@ -1,148 +1,78 @@
+import BankCard from '@/Components/Frontend/BankCard';
+import CanadaMark from '@/Components/Frontend/CanadaMark';
 import Container from '@/Components/Frontend/Container';
-import SectionHeading from '@/Components/Frontend/SectionHeading';
-import { Button } from '@/Components/UI';
 import FrontendLayout from '@/Layouts/Frontend/FrontendLayout';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 
-const services = [
-    {
-        title: 'Interior Design',
-        description:
-            'Tailored layouts, material palettes, and furniture plans that reflect your lifestyle.',
-    },
-    {
-        title: 'Space Planning',
-        description:
-            'Functional room arrangements that maximize comfort, flow, and natural light.',
-    },
-    {
-        title: 'Project Styling',
-        description:
-            'Finishing touches, decor selection, and cohesive styling for a polished result.',
-    },
-];
-
-export default function Index({ aboutUs }) {
-    const { site } = usePage().props;
+export default function Index({ banks }) {
+    const scrollToBanks = (event) => {
+        event.preventDefault();
+        document.getElementById('member-banks')?.scrollIntoView({ behavior: 'smooth' });
+    };
 
     return (
         <FrontendLayout>
-            <Head title="Home" />
+            <Head title="Simple and secure online banking" />
 
-            <section className="border-b border-neutral-200 bg-neutral-50">
-                <Container className="py-16 sm:py-24">
-                    <div className="grid items-center gap-12 lg:grid-cols-2">
-                        <div>
-                            <p className="text-sm font-medium uppercase tracking-wider text-neutral-500">
-                                Welcome to {site.name}
-                            </p>
-                            <h1 className="mt-4 text-4xl font-medium tracking-tight text-neutral-900 sm:text-5xl">
-                                Design spaces that feel calm, refined, and uniquely yours.
-                            </h1>
-                            <p className="mt-6 max-w-xl text-base leading-relaxed text-neutral-600">
-                                We create thoughtful interiors with a focus on balance, texture,
-                                and timeless design for homes and commercial spaces.
-                            </p>
-                            <div className="mt-8 flex flex-wrap gap-3">
-                                <Link href={route('contact')}>
-                                    <Button>Get in Touch</Button>
-                                </Link>
-                                <Link href={route('about')}>
-                                    <Button variant="secondary">About Us</Button>
-                                </Link>
-                            </div>
-                        </div>
+            <section className="bg-brand-purple text-white">
+                <Container className="py-14 sm:py-20">
+                    <CanadaMark light className="mb-6" />
 
-                        <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm">
-                            {aboutUs?.image_url ? (
-                                <img
-                                    src={aboutUs.image_url}
-                                    alt={aboutUs.title || 'Interior design'}
-                                    className="aspect-[4/3] w-full object-cover"
-                                />
-                            ) : (
-                                <div className="flex aspect-[4/3] items-center justify-center bg-neutral-100">
-                                    <p className="text-sm text-neutral-400">Featured image</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                    <h1 className="max-w-3xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-[2.75rem] lg:leading-[1.15]">
+                        Simple and secure online banking
+                    </h1>
+
+                    <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/85 sm:text-lg">
+                        Choose your financial institution below and sign in to view your accounts,
+                        balances and cards — protected with the same security you trust.
+                    </p>
+
+                    <a
+                        href="#member-banks"
+                        onClick={scrollToBanks}
+                        className="mt-8 inline-flex items-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-brand-purple shadow-sm transition hover:bg-neutral-100"
+                    >
+                        <svg
+                            className="h-4 w-4"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                            aria-hidden
+                        >
+                            <path d="M6.5 3A1.5 1.5 0 005 4.5V17h10V4.5A1.5 1.5 0 0013.5 3h-7ZM7 7h1.5v1.5H7V7Zm3 0h1.5v1.5H10V7ZM7 10h1.5v1.5H7V10Zm3 0h1.5v1.5H10V10Z" />
+                        </svg>
+                        Select your bank
+                    </a>
                 </Container>
             </section>
 
-            <section className="py-16 sm:py-20">
+            <section id="member-banks" className="scroll-mt-20 bg-neutral-100/80 py-14 sm:py-16">
                 <Container>
-                    <SectionHeading
-                        eyebrow="Services"
-                        title="What we offer"
-                        description="From concept to completion, we help you shape spaces with clarity and care."
-                        align="center"
-                    />
+                    <div className="mb-10 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <h2 className="text-2xl font-semibold text-neutral-900 sm:text-3xl">
+                                Select your bank to sign in
+                            </h2>
+                            <p className="mt-1 text-sm text-neutral-500">All member institutions</p>
+                        </div>
+                    </div>
 
-                    <div className="mt-12 grid gap-6 md:grid-cols-3">
-                        {services.map((service) => (
-                            <div
-                                key={service.title}
-                                className="rounded-lg border border-neutral-200 bg-white p-6"
-                            >
-                                <h3 className="text-lg font-medium text-neutral-900">
-                                    {service.title}
-                                </h3>
-                                <p className="mt-3 text-sm leading-relaxed text-neutral-600">
-                                    {service.description}
-                                </p>
-                            </div>
+                    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                        {banks.map((bank) => (
+                            <BankCard key={bank.name} bank={bank} />
                         ))}
                     </div>
                 </Container>
             </section>
 
-            {aboutUs && (
-                <section className="border-y border-neutral-200 bg-neutral-50 py-16 sm:py-20">
-                    <Container>
-                        <div className="grid items-center gap-10 lg:grid-cols-2">
-                            {aboutUs.image_url && (
-                                <img
-                                    src={aboutUs.image_url}
-                                    alt={aboutUs.title}
-                                    className="aspect-[4/3] w-full rounded-lg border border-neutral-200 object-cover"
-                                />
-                            )}
-
-                            <div>
-                                <SectionHeading
-                                    eyebrow="About Us"
-                                    title={aboutUs.title || 'Our story'}
-                                    description={
-                                        aboutUs.description
-                                            ? aboutUs.description.length > 220
-                                                ? `${aboutUs.description.slice(0, 220)}...`
-                                                : aboutUs.description
-                                            : 'Learn more about our design philosophy and team.'
-                                    }
-                                />
-                                <Link href={route('about')} className="mt-6 inline-block">
-                                    <Button variant="outline">Read More</Button>
-                                </Link>
-                            </div>
-                        </div>
-                    </Container>
-                </section>
-            )}
-
-            <section className="py-16 sm:py-20">
+            <section id="calculator" className="scroll-mt-20 border-t border-neutral-200 bg-white py-12">
                 <Container>
-                    <div className="rounded-lg border border-neutral-200 bg-neutral-900 px-6 py-12 text-center sm:px-10">
-                        <h2 className="text-3xl font-medium tracking-tight text-white">
-                            Ready to start your project?
-                        </h2>
-                        <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-neutral-300">
-                            Tell us about your space and we will help you bring your vision to life.
-                        </p>
-                        <Link href={route('contact')} className="mt-8 inline-block">
-                            <Button variant="secondary">Contact Us</Button>
-                        </Link>
-                    </div>
+                    <h2 className="text-xl font-semibold text-neutral-900">
+                        Deposit coverage calculator
+                    </h2>
+                    <p className="mt-2 max-w-2xl text-sm leading-relaxed text-neutral-600">
+                        Estimate how your deposits are protected across member institutions. This
+                        tool will be available here soon.
+                    </p>
                 </Container>
             </section>
         </FrontendLayout>
