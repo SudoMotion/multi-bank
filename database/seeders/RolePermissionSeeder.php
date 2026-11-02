@@ -30,6 +30,15 @@ class RolePermissionSeeder extends Seeder
 
         $superadmin->syncPermissions(Permissions::all());
 
+        $bankAdmin = Role::firstOrCreate([
+            'name' => Permissions::BANK_ADMIN_ROLE,
+            'guard_name' => 'web',
+        ]);
+
+        if ($bankAdmin->wasRecentlyCreated) {
+            $bankAdmin->syncPermissions(Permissions::bankAdminDefaults());
+        }
+
         $admin = User::where('email', 'admin@gmail.com')->first();
 
         if ($admin) {

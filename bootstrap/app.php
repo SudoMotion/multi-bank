@@ -20,12 +20,16 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo('/admin/login');
         $middleware->redirectUsersTo('/admin/dashboard');
 
-        $middleware->web(append: [
+        $middleware->web(prepend: [
+            \App\Http\Middleware\IdentifyTenant::class,
+        ], append: [
+            \App\Http\Middleware\EnsureUserBelongsToTenant::class,
             \App\Http\Middleware\HandleInertiaRequests::class,
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
         $middleware->alias([
+            'central' => \App\Http\Middleware\EnsureCentralContext::class,
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
