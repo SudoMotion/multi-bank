@@ -1,10 +1,12 @@
 import AppLogo from '@/Components/AppLogo';
 import { Button } from '@/Components/UI';
 import Dropdown from '@/Components/Dropdown';
+import { useTenant } from '@/tenancy/useTenant';
 import { Link, usePage } from '@inertiajs/react';
 
 export default function AdminTopbar({ title, onToggleSidebar }) {
     const user = usePage().props.auth.user;
+    const tenant = useTenant();
 
     return (
         <header className="fixed inset-x-0 top-0 z-50 flex h-14 items-center justify-between border-b border-neutral-200 bg-white px-2 md:px-4">
@@ -37,6 +39,17 @@ export default function AdminTopbar({ title, onToggleSidebar }) {
             </div>
 
             <div className="flex items-center gap-3">
+                <span
+                    className={
+                        'hidden rounded-full px-2.5 py-1 text-xs font-medium sm:inline-flex ' +
+                        (tenant
+                            ? 'bg-tenant-primary/10 text-tenant-primary'
+                            : 'bg-neutral-100 text-neutral-600')
+                    }
+                >
+                    {tenant ? tenant.name : 'Platform'}
+                </span>
+
                 <Dropdown>
                     <Dropdown.Trigger>
                         <Button type="button" variant="ghost" size="sm" className="gap-2 text-neutral-700">

@@ -1,17 +1,23 @@
-export default function BankCard({ bank }) {
+import { themeable } from '@/tenancy/theme';
+
+function BankCard({ bank }) {
     return (
         <article className="flex flex-col overflow-hidden rounded-xl border border-neutral-200/80 bg-white shadow-sm transition-shadow hover:shadow-md">
             <div className="flex min-h-[140px] items-center justify-center border-b border-neutral-100 bg-neutral-50/50 px-6 py-8">
-                <img
-                    src={bank.logo}
-                    alt=""
-                    className="max-h-16 w-full max-w-[220px] object-contain"
-                />
+                {bank.logo ? (
+                    <img
+                        src={bank.logo}
+                        alt=""
+                        className="max-h-16 w-full max-w-[220px] object-contain"
+                    />
+                ) : (
+                    <span className="text-2xl font-semibold text-neutral-400">{bank.name}</span>
+                )}
             </div>
 
             <div className="flex flex-1 flex-col px-6 py-5">
                 <h3 className="text-lg font-semibold text-neutral-900">{bank.name}</h3>
-                <p className="mt-1 text-sm text-neutral-500">{bank.tagline}</p>
+                {bank.tagline && <p className="mt-1 text-sm text-neutral-500">{bank.tagline}</p>}
 
                 <a
                     href={bank.sign_in_url}
@@ -35,3 +41,5 @@ export default function BankCard({ bank }) {
         </article>
     );
 }
+
+export default themeable('Components/Frontend/BankCard', BankCard);

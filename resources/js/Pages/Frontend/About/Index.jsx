@@ -14,7 +14,7 @@ export default function Index({ aboutUs }) {
                     <SectionHeading
                         eyebrow="About Us"
                         title={aboutUs?.title || 'Our Story'}
-                        description="Discover who we are and how we approach interior design."
+                        description="Discover who we are and what we stand for."
                     />
                 </Container>
             </section>

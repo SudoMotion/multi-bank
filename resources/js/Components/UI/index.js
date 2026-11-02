@@ -11,6 +11,7 @@ import { ToastProvider, useToast } from './toast';
 import Button from './Button';
 import Card from './Card';
 import Checkbox from './Checkbox';
+import ColorInput from './ColorInput';
 import ErrorMessage from './ErrorMessage';
 import FileInput from './FileInput';
 import FormField from './FormField';
@@ -30,6 +31,7 @@ export {
     Button,
     Card,
     Checkbox,
+    ColorInput,
     DeleteAction,
     EditAction,
     ErrorMessage,

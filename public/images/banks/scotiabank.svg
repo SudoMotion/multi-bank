@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" role="img" aria-label="Scotiabank">
-  <rect width="200" height="80" fill="#fff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 80" role="img" aria-label="Scotiabank">
+  <rect width="280" height="80" fill="#fff"/>
   <circle cx="40" cy="40" r="22" fill="#EC111A"/>
   <text x="40" y="48" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="22" font-weight="700">S</text>
   <text x="78" y="46" fill="#EC111A" font-family="Arial,sans-serif" font-size="26" font-weight="700">Scotiabank</text>

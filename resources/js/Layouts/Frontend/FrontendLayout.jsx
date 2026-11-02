@@ -1,8 +1,9 @@
 import SiteFavicon from '@/Components/SiteFavicon';
+import { themeable } from '@/tenancy/theme';
 import FrontendFooter from './FrontendFooter';
 import FrontendNavbar from './FrontendNavbar';
 
-export default function FrontendLayout({ children }) {
+function FrontendLayout({ children }) {
     return (
         <div className="flex min-h-screen flex-col bg-white text-neutral-900">
             <SiteFavicon />
@@ -12,3 +13,5 @@ export default function FrontendLayout({ children }) {
         </div>
     );
 }
+
+export default themeable('Layouts/Frontend/FrontendLayout', FrontendLayout);

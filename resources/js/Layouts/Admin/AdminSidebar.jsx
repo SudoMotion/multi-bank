@@ -1,5 +1,6 @@
 import AppLogo from '@/Components/AppLogo';
 import { useCan } from '@/hooks/useCan';
+import { useIsCentral } from '@/tenancy/useTenant';
 import { Link } from '@inertiajs/react';
 import AdminSidebarGroup from './AdminSidebarGroup';
 import AdminSidebarLink from './AdminSidebarLink';
@@ -37,23 +38,34 @@ function SettingsIcon({ className }) {
     );
 }
 
+function BanksIcon({ className }) {
+    return (
+        <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+        </svg>
+    );
+}
+
 const accessControlItems = [
     { name: 'Users', href: 'admin.users.index', active: 'admin.users.*', permission: 'users.view' },
-    { name: 'Roles', href: 'admin.roles.index', active: 'admin.roles.*', permission: 'roles.view' },
-    { name: 'Permissions', href: 'admin.permissions.index', active: 'admin.permissions.*', permission: 'permissions.view' },
+    { name: 'Roles', href: 'admin.roles.index', active: 'admin.roles.*', permission: 'roles.view', centralOnly: true },
+    { name: 'Permissions', href: 'admin.permissions.index', active: 'admin.permissions.*', permission: 'permissions.view', centralOnly: true },
 ];
 
 const topLevelItems = [
     { name: 'Dashboard', href: 'admin.dashboard', active: 'admin.dashboard', icon: DashboardIcon, permission: 'dashboard.view' },
+    { name: 'Banks', href: 'admin.tenants.index', active: 'admin.tenants.*', icon: BanksIcon, permission: 'tenants.view', centralOnly: true },
     { name: 'About Us', href: 'admin.about-us.index', active: 'admin.about-us.*', icon: AboutUsIcon, permission: 'about-us.view' },
     { name: 'Settings', href: 'admin.settings.index', active: 'admin.settings.*', icon: SettingsIcon, permission: 'settings.view' },
 ];
 
 export default function AdminSidebar({ open, onNavigate }) {
     const can = useCan();
+    const isCentral = useIsCentral();
+    const isVisible = (item) => can(item.permission) && (isCentral || !item.centralOnly);
 
-    const visibleAccessItems = accessControlItems.filter((item) => can(item.permission));
-    const visibleTopLevelItems = topLevelItems.filter((item) => can(item.permission));
+    const visibleAccessItems = accessControlItems.filter(isVisible);
+    const visibleTopLevelItems = topLevelItems.filter(isVisible);
 
     return (
         <aside
