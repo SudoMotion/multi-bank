@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AboutUsController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\TenantController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
@@ -91,7 +92,26 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 ->name('users.destroy');
         });
 
-        Route::middleware('permission:roles.view')->group(function () {
+        Route::middleware(['central', 'permission:tenants.view'])->group(function () {
+            Route::get('banks', [TenantController::class, 'index'])->name('tenants.index');
+            Route::get('banks/create', [TenantController::class, 'create'])
+                ->middleware('permission:tenants.create')
+                ->name('tenants.create');
+            Route::post('banks', [TenantController::class, 'store'])
+                ->middleware('permission:tenants.create')
+                ->name('tenants.store');
+            Route::get('banks/{tenant}/edit', [TenantController::class, 'edit'])
+                ->middleware('permission:tenants.edit')
+                ->name('tenants.edit');
+            Route::post('banks/{tenant}', [TenantController::class, 'update'])
+                ->middleware('permission:tenants.edit')
+                ->name('tenants.update');
+            Route::patch('banks/{tenant}/status', [TenantController::class, 'toggleStatus'])
+                ->middleware('permission:tenants.edit')
+                ->name('tenants.status');
+        });
+
+        Route::middleware(['central', 'permission:roles.view'])->group(function () {
             Route::get('roles', [RoleController::class, 'index'])->name('roles.index');
             Route::get('roles/create', [RoleController::class, 'create'])
                 ->middleware('permission:roles.create')
@@ -110,7 +130,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
                 ->name('roles.destroy');
         });
 
-        Route::middleware('permission:permissions.view')->group(function () {
+        Route::middleware(['central', 'permission:permissions.view'])->group(function () {
             Route::get('permissions', [PermissionController::class, 'index'])->name('permissions.index');
             Route::post('permissions', [PermissionController::class, 'update'])
                 ->middleware('permission:permissions.update')
