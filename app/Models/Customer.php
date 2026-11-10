@@ -56,17 +56,26 @@ class Customer extends Authenticatable
     protected static function booted(): void
     {
         static::creating(function (Customer $customer) {
-            $customer->customer_number ??= static::generateNumber();
+            $customer->customer_number ??= static::generateAccountNumber();
         });
     }
 
-    public static function generateNumber(): string
+    /** Globally unique 16-digit number assigned once per customer profile. */
+    public static function generateAccountNumber(): string
     {
         do {
-            $number = 'C'.random_int(10000000, 99999999);
-        } while (static::query()->where('customer_number', $number)->exists());
+            $number = '';
+            for ($i = 0; $i < 16; $i++) {
+                $number .= (string) random_int(0, 9);
+            }
+        } while (static::acrossTenants()->where('customer_number', $number)->exists());
 
         return $number;
+    }
+
+    public function accountNumber(): string
+    {
+        return $this->customer_number;
     }
 
     public function accounts(): HasMany

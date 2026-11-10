@@ -40,8 +40,10 @@ export default function TransactionsTable({ bankId, transactions, showAccount = 
                                     href={route('admin.platform.banks.accounts.show', [bankId, transaction.account.id])}
                                     className="hover:underline"
                                 >
-                                    <p className="font-mono text-neutral-800">{transaction.account.number}</p>
-                                    <p className="text-xs text-neutral-500">{transaction.account.customer}</p>
+                                    <p className="text-neutral-800">{transaction.account.label}</p>
+                                    <p className="text-xs font-mono text-neutral-500">
+                                        {transaction.account.account_number} · {transaction.account.customer}
+                                    </p>
                                 </Link>
                             ) : (
                                 '—'

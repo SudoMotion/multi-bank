@@ -254,8 +254,10 @@ class SuperAdminTest extends TestCase
         $this->actingAs($this->root);
         $url = $this->centralUrl("admin/platform/banks/{$alpha->id}/transactions");
 
+        $account->load('customer');
+
         $this->post($url, ['operation' => 'withdrawal', 'account_id' => $account->id, 'amount' => '10.01'])
-            ->assertSessionHasErrors(['amount' => 'Insufficient funds in account '.$account->account_number.'.']);
+            ->assertSessionHasErrors(['amount' => 'Insufficient funds in account '.$account->label().'.']);
 
         $this->post($url, ['operation' => 'deposit', 'account_id' => $account->id, 'amount' => '500.01'])
             ->assertSessionHasErrors('amount');

@@ -24,7 +24,7 @@ export default function Show({ workspace, customer, can }) {
         <BankWorkspaceLayout
             workspace={workspace}
             title={customer.name}
-            description={`Customer ${customer.customer_number} · since ${customer.created_at}`}
+            description={`Account ${customer.account_number} · since ${customer.created_at}`}
             backHref={route('admin.platform.banks.customers.index', bankId)}
             backLabel="Back to customers"
             actions={
@@ -45,6 +45,9 @@ export default function Show({ workspace, customer, can }) {
             <div className="grid gap-4 lg:grid-cols-3">
                 <Card title="Profile">
                     <dl className="space-y-3">
+                        <Detail label="Account number">
+                            <span className="font-mono">{customer.account_number}</span>
+                        </Detail>
                         <Detail label="Status">
                             <StatusBadge status={customer.status} />
                         </Detail>
@@ -94,7 +97,7 @@ export default function Show({ workspace, customer, can }) {
                                         href={route('admin.platform.banks.accounts.show', [bankId, account.id])}
                                         className="font-mono text-neutral-900 hover:underline"
                                     >
-                                        {account.account_number}
+                                        {account.label}
                                     </Link>
                                 </Td>
                                 <Td>{account.type}</Td>

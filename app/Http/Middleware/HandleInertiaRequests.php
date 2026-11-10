@@ -52,7 +52,7 @@ class HandleInertiaRequests extends Middleware
                     'id' => $customer->id,
                     'name' => $customer->fullName(),
                     'email' => $customer->email,
-                    'customer_number' => $customer->customer_number,
+                    'account_number' => $customer->accountNumber(),
                 ] : null,
                 'roles' => $user?->getRoleNames()->values()->all() ?? [],
                 'permissions' => $permissions->values()->all(),

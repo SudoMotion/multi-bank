@@ -65,7 +65,7 @@ class AccountController extends BankWorkspaceController
             ->get()
             ->map(fn (Customer $customer) => [
                 'value' => $customer->id,
-                'label' => "{$customer->fullName()} ({$customer->customer_number})",
+                'label' => "{$customer->fullName()} ({$customer->accountNumber()})",
             ])
             ->all());
 
@@ -99,9 +99,11 @@ class AccountController extends BankWorkspaceController
             }
         });
 
+        $account->load('customer');
+
         return redirect()
             ->route('admin.platform.banks.accounts.show', [$tenant, $account->id])
-            ->with('success', "Account {$account->account_number} opened.");
+            ->with('success', ucfirst($account->type).' account opened for '.$account->customer->fullName().'.');
     }
 
     public function show(Request $request, Tenant $tenant, int $account, LedgerService $ledger): Response
@@ -125,11 +127,11 @@ class AccountController extends BankWorkspaceController
                     ->where('status', Account::STATUS_ACTIVE)
                     ->where('currency', $model->currency)
                     ->whereKeyNot($model->id)
-                    ->orderBy('account_number')
+                    ->orderBy('id')
                     ->get()
                     ->map(fn (Account $target) => [
                         'value' => $target->id,
-                        'label' => "{$target->account_number} — {$target->customer?->fullName()}",
+                        'label' => "{$target->label()} — {$target->customer?->fullName()} ({$target->customer?->accountNumber()})",
                     ])
                     ->all(),
             ];
@@ -168,7 +170,9 @@ class AccountController extends BankWorkspaceController
             $model->closed_at = $data['status'] === Account::STATUS_CLOSED ? now() : null;
             $model->save();
 
-            return "Account {$model->account_number} is now ".Account::STATUSES[$model->status].'.';
+            $model->load('customer');
+
+            return "{$model->label()} is now ".Account::STATUSES[$model->status].'.';
         }));
 
         return back()->with('success', $message);
@@ -181,7 +185,7 @@ class AccountController extends BankWorkspaceController
     {
         return [
             'id' => $account->id,
-            'account_number' => $account->account_number,
+            'label' => $account->label(),
             'type' => $account->type,
             'type_label' => Account::TYPES[$account->type] ?? $account->type,
             'currency' => $account->currency,
@@ -190,7 +194,7 @@ class AccountController extends BankWorkspaceController
             'customer' => $account->customer ? [
                 'id' => $account->customer->id,
                 'name' => $account->customer->fullName(),
-                'customer_number' => $account->customer->customer_number,
+                'account_number' => $account->customer->accountNumber(),
             ] : null,
         ];
     }

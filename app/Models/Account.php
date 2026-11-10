@@ -68,21 +68,8 @@ class Account extends Model
     protected static function booted(): void
     {
         static::creating(function (Account $account) {
-            $account->account_number ??= static::generateNumber();
             $account->opened_at ??= now();
         });
-    }
-
-    public static function generateNumber(): string
-    {
-        do {
-            $number = '';
-            for ($i = 0; $i < 16; $i++) {
-                $number .= (string) random_int(0, 9);
-            }
-        } while (static::acrossTenants()->where('account_number', $number)->exists());
-
-        return $number;
     }
 
     public function customer(): BelongsTo
@@ -107,7 +94,11 @@ class Account extends Model
 
     public function label(): string
     {
-        return (self::TYPES[$this->type] ?? ucfirst($this->type)).' ••'.substr($this->account_number, -4);
+        $type = self::TYPES[$this->type] ?? ucfirst($this->type);
+        $customer = $this->relationLoaded('customer') ? $this->customer : $this->customer()->first();
+        $suffix = $customer ? substr($customer->accountNumber(), -4) : '****';
+
+        return "{$type} ••{$suffix}";
     }
 
     public function scopeSearch(Builder $query, ?string $term): Builder
@@ -116,11 +107,6 @@ class Account extends Model
             return $query;
         }
 
-        $like = '%'.addcslashes($term, '%_\\').'%';
-
-        return $query->where(function (Builder $query) use ($like, $term) {
-            $query->where('account_number', 'like', $like)
-                ->orWhereHas('customer', fn (Builder $customer) => $customer->search($term));
-        });
+        return $query->whereHas('customer', fn (Builder $customer) => $customer->search($term));
     }
 }

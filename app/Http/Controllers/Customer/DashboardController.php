@@ -20,12 +20,11 @@ class DashboardController extends Controller
 
         $accounts = $customer->accounts()
             ->orderBy('type')
-            ->orderBy('account_number')
+            ->orderBy('id')
             ->get()
             ->map(fn ($account) => [
                 'id' => $account->id,
                 'label' => $account->label(),
-                'account_number' => $account->account_number,
                 'type' => $account->type,
                 'status' => $account->status,
                 'currency' => $account->currency,
@@ -37,7 +36,7 @@ class DashboardController extends Controller
 
         $transactions = Transaction::query()
             ->whereIn('account_id', $accountIds)
-            ->with('account:id,account_number,type')
+            ->with('account:id,type,customer_id')
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->limit(25)
@@ -58,6 +57,7 @@ class DashboardController extends Controller
             'customer' => [
                 'name' => $customer->fullName(),
                 'email' => $customer->email,
+                'account_number' => $customer->accountNumber(),
             ],
             'accounts' => $accounts,
             'transactions' => $transactions,

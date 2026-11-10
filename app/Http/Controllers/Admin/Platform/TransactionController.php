@@ -67,11 +67,11 @@ class TransactionController extends BankWorkspaceController
         $accounts = $this->inBank($tenant, fn () => Account::query()
             ->with('customer')
             ->where('status', '!=', Account::STATUS_CLOSED)
-            ->orderBy('account_number')
+            ->orderBy('id')
             ->get()
             ->map(fn (Account $account) => [
                 'value' => $account->id,
-                'label' => "{$account->account_number} — {$account->customer?->fullName()} ({$account->currency})",
+                'label' => "{$account->label()} — {$account->customer?->fullName()} ({$account->customer?->accountNumber()})",
                 'currency' => $account->currency,
                 'status' => $account->status,
                 'balance' => Money::format($account->balance, $account->currency),

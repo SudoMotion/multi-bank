@@ -29,7 +29,7 @@ export default function DeleteCustomerDialog({ customer, bankId, onClose }) {
                 <form onSubmit={submit} className="p-5">
                     <h3 className="text-lg font-medium text-neutral-900">Delete {customer.name}?</h3>
                     <p className="mt-2 text-sm text-neutral-600">
-                        Customer <span className="font-mono">{customer.customer_number}</span> will be
+                        Account number <span className="font-mono">{customer.account_number}</span> will be
                         permanently removed. This cannot be undone.
                     </p>
 

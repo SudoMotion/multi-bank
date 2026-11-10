@@ -30,7 +30,7 @@ class CustomerController extends BankWorkspaceController
             ->withQueryString()
             ->through(fn (Customer $customer) => [
                 'id' => $customer->id,
-                'customer_number' => $customer->customer_number,
+                'account_number' => $customer->accountNumber(),
                 'name' => $customer->fullName(),
                 'email' => $customer->email,
                 'phone' => $customer->phone,
@@ -76,7 +76,7 @@ class CustomerController extends BankWorkspaceController
                     ...$this->present($model),
                     'accounts' => $model->accounts->map(fn (Account $account) => [
                         'id' => $account->id,
-                        'account_number' => $account->account_number,
+                        'label' => $account->label(),
                         'type' => Account::TYPES[$account->type] ?? $account->type,
                         'status' => $account->status,
                         'balance' => $this->money($account->balance, $account->currency),
@@ -148,7 +148,7 @@ class CustomerController extends BankWorkspaceController
     {
         return [
             'id' => $customer->id,
-            'customer_number' => $customer->customer_number,
+            'account_number' => $customer->accountNumber(),
             'first_name' => $customer->first_name,
             'last_name' => $customer->last_name,
             'name' => $customer->fullName(),

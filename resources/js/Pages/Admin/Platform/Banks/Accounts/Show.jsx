@@ -36,7 +36,7 @@ function StatusActions({ bankId, account }) {
                 className="text-red-600"
                 disabled={account.balance.minor !== 0}
                 title={account.balance.minor !== 0 ? 'Balance must be zero to close' : undefined}
-                onClick={() => changeStatus('closed', `Close account ${account.account_number}? Closed accounts cannot be reopened.`)}
+                onClick={() => changeStatus('closed', `Close ${account.label}? Closed accounts cannot be reopened.`)}
             >
                 Close account
             </Button>
@@ -51,7 +51,7 @@ export default function Show({ workspace, account, transactions, transferTargets
     return (
         <BankWorkspaceLayout
             workspace={workspace}
-            title={`${account.type_label} ${account.account_number}`}
+            title={account.label}
             description={account.customer ? `Held by ${account.customer.name}` : null}
             backHref={route('admin.platform.banks.accounts.index', bankId)}
             backLabel="Back to accounts"
@@ -94,7 +94,7 @@ export default function Show({ workspace, account, transactions, transferTargets
                                         href={route('admin.platform.banks.customers.show', [bankId, account.customer.id])}
                                         className="text-neutral-900 hover:underline"
                                     >
-                                        {account.customer.name} ({account.customer.customer_number})
+                                        {account.customer.name} ({account.customer.account_number})
                                     </Link>
                                 </dd>
                             </div>

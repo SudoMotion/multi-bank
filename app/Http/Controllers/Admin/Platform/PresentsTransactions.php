@@ -28,10 +28,11 @@ trait PresentsTransactions
             'created_at_label' => $transaction->created_at?->format('M j, Y g:i A'),
             'account' => $transaction->account ? [
                 'id' => $transaction->account->id,
-                'number' => $transaction->account->account_number,
+                'label' => $transaction->account->label(),
                 'customer' => $transaction->account->customer?->fullName(),
+                'account_number' => $transaction->account->customer?->accountNumber(),
             ] : null,
-            'related_account' => $transaction->relatedAccount?->account_number,
+            'related_account' => $transaction->relatedAccount?->label(),
             'created_by' => $transaction->relationLoaded('creator') ? $transaction->creator?->name : null,
         ];
     }

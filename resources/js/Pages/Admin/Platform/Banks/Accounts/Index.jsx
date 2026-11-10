@@ -24,7 +24,7 @@ export default function Index({ workspace, accounts, filters, statuses, types, c
                     url={route('admin.platform.banks.accounts.index', bankId)}
                     filters={filters}
                     fields={[
-                        { name: 'search', label: 'Search', placeholder: 'Account # or customer' },
+                        { name: 'search', label: 'Search', placeholder: 'Account number or customer name' },
                         { name: 'type', label: 'Type', type: 'select', options: types },
                         { name: 'status', label: 'Status', type: 'select', options: statuses },
                     ]}
@@ -35,7 +35,7 @@ export default function Index({ workspace, accounts, filters, statuses, types, c
                     empty="No accounts match."
                     head={
                         <>
-                            <Th>Account</Th>
+                            <Th>Product</Th>
                             <Th>Customer</Th>
                             <Th>Type</Th>
                             <Th>Status</Th>
@@ -51,7 +51,7 @@ export default function Index({ workspace, accounts, filters, statuses, types, c
                                     href={route('admin.platform.banks.accounts.show', [bankId, account.id])}
                                     className="font-mono text-neutral-900 hover:underline"
                                 >
-                                    {account.account_number}
+                                    {account.label}
                                 </Link>
                             </Td>
                             <Td>
@@ -62,7 +62,7 @@ export default function Index({ workspace, accounts, filters, statuses, types, c
                                     >
                                         <p className="text-neutral-800">{account.customer.name}</p>
                                         <p className="font-mono text-xs text-neutral-500">
-                                            {account.customer.customer_number}
+                                            {account.customer.account_number}
                                         </p>
                                     </Link>
                                 )}

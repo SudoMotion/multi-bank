@@ -66,7 +66,7 @@ export default function Index({ workspace, customers, filters, statuses, can }) 
                                     className="hover:underline"
                                 >
                                     <p className="font-medium text-neutral-900">{customer.name}</p>
-                                    <p className="font-mono text-xs text-neutral-500">{customer.customer_number}</p>
+                                    <p className="font-mono text-xs text-neutral-500">{customer.account_number}</p>
                                 </Link>
                             </Td>
                             <Td>

@@ -129,6 +129,7 @@ class LedgerService
         sort($ids);
 
         $accounts = Account::query()
+            ->with('customer')
             ->whereKey($ids)
             ->orderBy('id')
             ->lockForUpdate()
@@ -184,14 +185,14 @@ class LedgerService
     private function assertActive(Account $account): void
     {
         if (! $account->isActive()) {
-            throw new LedgerException("Account {$account->account_number} is {$account->status}.");
+            throw new LedgerException("Account {$account->label()} is {$account->status}.");
         }
     }
 
     private function assertFunds(Account $account, int $amount): void
     {
         if ($account->balance < $amount) {
-            throw new LedgerException("Insufficient funds in account {$account->account_number}.");
+            throw new LedgerException("Insufficient funds in account {$account->label()}.");
         }
     }
 
