@@ -10,7 +10,7 @@ use App\Models\Transaction;
 trait PresentsTransactions
 {
     /**
-     * Expects account.customer, relatedAccount and creator to be eager loaded.
+     * Expects account.customers, relatedAccount and creator to be eager loaded.
      *
      * @return array<string, mixed>
      */
@@ -32,8 +32,8 @@ trait PresentsTransactions
             'account' => $transaction->account ? [
                 'id' => $transaction->account->id,
                 'label' => $transaction->account->label(),
-                'customer' => $transaction->account->customer?->fullName(),
-                'account_number' => $transaction->account->customer?->accountNumber(),
+                'customer' => $transaction->account->customers->pluck('fullName')->implode(', ') ?: null,
+                'account_number' => $transaction->account->customers->first()?->accountNumber(),
             ] : null,
             'related_account' => $transaction->relatedAccount?->label(),
             'created_by' => $transaction->relationLoaded('creator') ? $transaction->creator?->name : null,

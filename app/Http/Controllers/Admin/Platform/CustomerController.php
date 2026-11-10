@@ -111,8 +111,8 @@ class CustomerController extends BankWorkspaceController
             $model = Customer::query()->findOrFail($customer);
 
             $transactions = Transaction::query()
-                ->with(['account.customer', 'relatedAccount', 'creator'])
-                ->whereHas('account', fn (Builder $query) => $query->where('customer_id', $customer))
+                ->with(['account.customers', 'relatedAccount', 'creator'])
+                ->whereHas('account.customers', fn (Builder $query) => $query->whereKey($customer))
                 ->when($filters['search'] ?? null, function (Builder $query, string $search) {
                     $like = '%'.addcslashes($search, '%_\\').'%';
 
@@ -162,10 +162,6 @@ class CustomerController extends BankWorkspaceController
                     'account_ids' => $model->accounts->pluck('id')->all(),
                 ],
                 'accountOptions' => Account::query()
-                    ->where(function ($query) use ($model) {
-                        $query->whereNull('customer_id')
-                            ->orWhere('customer_id', $model->id);
-                    })
                     ->orderBy('name')
                     ->orderBy('id')
                     ->get()
@@ -216,10 +212,7 @@ class CustomerController extends BankWorkspaceController
         $result = $this->inBank($tenant, function () use ($customer) {
             $model = Customer::query()->withCount('accounts')->findOrFail($customer);
 
-            if ($model->accounts_count > 0) {
-                return ['error' => "{$model->fullName()} still has accounts. Close and remove them first."];
-            }
-
+            $model->accounts()->detach();
             $model->delete();
 
             return ['success' => "Customer {$model->fullName()} deleted."];
@@ -246,22 +239,11 @@ class CustomerController extends BankWorkspaceController
             ->values()
             ->all();
 
-        Account::query()
-            ->where('customer_id', $customer->id)
-            ->when($accountIds !== [], fn ($query) => $query->whereNotIn('id', $accountIds))
-            ->update(['customer_id' => null]);
-
-        if ($accountIds === []) {
-            return;
-        }
-
-        Account::query()
-            ->whereIn('id', $accountIds)
-            ->where(function ($query) use ($customer) {
-                $query->whereNull('customer_id')
-                    ->orWhere('customer_id', $customer->id);
-            })
-            ->update(['customer_id' => $customer->id]);
+        $customer->accounts()->sync(
+            collect($accountIds)->mapWithKeys(fn (int $id) => [
+                $id => ['tenant_id' => $customer->tenant_id],
+            ])->all(),
+        );
     }
 
     /**

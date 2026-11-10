@@ -55,8 +55,8 @@ class StoreCustomerTransactionRequest extends FormRequest
                 return;
             }
 
-            if ((int) $account->customer_id !== $customerId) {
-                $validator->errors()->add('account_id', 'Choose an account that belongs to this customer.');
+            if (! $account->customers()->whereKey($customerId)->exists()) {
+                $validator->errors()->add('account_id', 'Choose an account assigned to this customer.');
             }
         });
     }

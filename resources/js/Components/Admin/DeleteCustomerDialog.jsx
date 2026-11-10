@@ -11,7 +11,7 @@ export default function DeleteCustomerDialog({ customer, bankId, onClose }) {
 
     const submit = (e) => {
         e.preventDefault();
-        if (!customer || customer.accounts_count > 0) {
+        if (!customer) {
             return;
         }
 
@@ -21,7 +21,7 @@ export default function DeleteCustomerDialog({ customer, bankId, onClose }) {
         });
     };
 
-    const hasAccounts = (customer?.accounts_count ?? 0) > 0;
+    const linkedAccounts = customer?.accounts_count ?? 0;
 
     return (
         <Modal show={Boolean(customer)} maxWidth="md" onClose={close}>
@@ -33,11 +33,11 @@ export default function DeleteCustomerDialog({ customer, bankId, onClose }) {
                         permanently removed. This cannot be undone.
                     </p>
 
-                    {hasAccounts ? (
-                        <p className="mt-4 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900">
-                            This customer still has {customer.accounts_count}{' '}
-                            {customer.accounts_count === 1 ? 'account' : 'accounts'}. Close and remove
-                            those accounts before deleting the customer.
+                    {linkedAccounts > 0 ? (
+                        <p className="mt-4 rounded-md bg-neutral-50 px-3 py-2 text-sm text-neutral-700">
+                            This customer is linked to {linkedAccounts}{' '}
+                            {linkedAccounts === 1 ? 'product account' : 'product accounts'}. Those accounts will
+                            stay open; only this customer’s access is removed.
                         </p>
                     ) : null}
 
@@ -45,7 +45,7 @@ export default function DeleteCustomerDialog({ customer, bankId, onClose }) {
                         <Button type="button" variant="secondary" onClick={close}>
                             Cancel
                         </Button>
-                        <Button type="submit" variant="danger" disabled={hasAccounts || processing}>
+                        <Button type="submit" variant="danger" disabled={processing}>
                             Delete customer
                         </Button>
                     </div>

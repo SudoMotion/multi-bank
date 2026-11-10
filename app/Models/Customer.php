@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -79,9 +79,11 @@ class Customer extends Authenticatable
         return $this->customer_number;
     }
 
-    public function accounts(): HasMany
+    public function accounts(): BelongsToMany
     {
-        return $this->hasMany(Account::class);
+        return $this->belongsToMany(Account::class, 'account_customer')
+            ->withPivot('tenant_id')
+            ->withTimestamps();
     }
 
     public function fullName(): string

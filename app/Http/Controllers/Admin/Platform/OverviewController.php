@@ -52,7 +52,7 @@ class OverviewController extends BankWorkspaceController
                     ])
                     ->all(),
                 'recentTransactions' => Transaction::query()
-                    ->with(['account.customer', 'relatedAccount'])
+                    ->with(['account.customers', 'relatedAccount'])
                     ->latest('id')
                     ->limit(8)
                     ->get()

@@ -52,7 +52,11 @@ export default function Show({ workspace, account, transactions, transferTargets
         <BankWorkspaceLayout
             workspace={workspace}
             title={account.label}
-            description={account.customer ? `Held by ${account.customer.name}` : null}
+            description={
+                account.customers?.length > 0
+                    ? `Held by ${account.customers.map((c) => c.name).join(', ')}`
+                    : null
+            }
             backHref={route('admin.platform.banks.accounts.index', bankId)}
             backLabel="Back to accounts"
         >
@@ -86,16 +90,23 @@ export default function Show({ workspace, account, transactions, transferTargets
                                 <dd className="mt-0.5 text-neutral-900">{account.closed_at}</dd>
                             </div>
                         )}
-                        {account.customer && (
+                        {account.customers?.length > 0 && (
                             <div className="col-span-2">
-                                <dt className="text-xs text-neutral-500">Customer</dt>
-                                <dd className="mt-0.5">
-                                    <Link
-                                        href={route('admin.platform.banks.customers.show', [bankId, account.customer.id])}
-                                        className="text-neutral-900 hover:underline"
-                                    >
-                                        {account.customer.name} ({account.customer.account_number})
-                                    </Link>
+                                <dt className="text-xs text-neutral-500">Customers</dt>
+                                <dd className="mt-0.5 space-y-1">
+                                    {account.customers.map((holder) => (
+                                        <div key={holder.id}>
+                                            <Link
+                                                href={route('admin.platform.banks.customers.show', [
+                                                    bankId,
+                                                    holder.id,
+                                                ])}
+                                                className="text-neutral-900 hover:underline"
+                                            >
+                                                {holder.name} ({holder.account_number})
+                                            </Link>
+                                        </div>
+                                    ))}
                                 </dd>
                             </div>
                         )}

@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\Platform\StoreAccountRequest;
 use App\Http\Requests\Admin\Platform\UpdateAccountRequest;
 use App\Http\Requests\Admin\Platform\StoreTransactionRequest;
 use App\Models\Account;
+use App\Models\Customer;
 use App\Models\Tenant;
 use App\Models\Transaction;
 use App\Support\GlobalSettings;
@@ -31,7 +32,7 @@ class AccountController extends BankWorkspaceController
         ]);
 
         $accounts = $this->inBank($tenant, fn () => Account::query()
-            ->with('customer')
+            ->with('customers')
             ->withCount('transactions')
             ->search($filters['search'] ?? null)
             ->when($filters['status'] ?? null, fn ($query, string $status) => $query->where('status', $status))
@@ -151,7 +152,7 @@ class AccountController extends BankWorkspaceController
     public function show(Request $request, Tenant $tenant, int $account, LedgerService $ledger): Response
     {
         $props = $this->inBank($tenant, function () use ($account) {
-            $model = Account::query()->with('customer')->findOrFail($account);
+            $model = Account::query()->with('customers')->findOrFail($account);
 
             return [
                 'account' => [
@@ -160,12 +161,12 @@ class AccountController extends BankWorkspaceController
                     'closed_at' => $model->closed_at?->format('M j, Y'),
                 ],
                 'transactions' => $model->transactions()
-                    ->with(['account.customer', 'relatedAccount', 'creator'])
+                    ->with(['account.customers', 'relatedAccount', 'creator'])
                     ->latest('id')
                     ->paginate(20)
                     ->through(fn (Transaction $transaction) => $this->presentTransaction($transaction)),
                 'transferTargets' => Account::query()
-                    ->with('customer')
+                    ->with('customers')
                     ->where('status', Account::STATUS_ACTIVE)
                     ->where('currency', $model->currency)
                     ->whereKeyNot($model->id)
@@ -173,7 +174,7 @@ class AccountController extends BankWorkspaceController
                     ->get()
                     ->map(fn (Account $target) => [
                         'value' => $target->id,
-                        'label' => "{$target->label()} — {$target->customer?->fullName()} ({$target->customer?->accountNumber()})",
+                        'label' => $this->accountOptionLabel($target),
                     ])
                     ->all(),
             ];
@@ -212,7 +213,7 @@ class AccountController extends BankWorkspaceController
             $model->closed_at = $data['status'] === Account::STATUS_CLOSED ? now() : null;
             $model->save();
 
-            $model->load('customer');
+            $model->load('customers');
 
             return "{$model->label()} is now ".Account::STATUSES[$model->status].'.';
         }));
@@ -236,11 +237,20 @@ class AccountController extends BankWorkspaceController
             'balance' => $this->money($account->balance, $account->currency),
             'balance_minor' => $account->balance,
             'transactions_count' => $account->transactions_count ?? null,
-            'customer' => $account->customer ? [
-                'id' => $account->customer->id,
-                'name' => $account->customer->fullName(),
-                'account_number' => $account->customer->accountNumber(),
-            ] : null,
+            'customers' => $account->customers->map(fn (Customer $customer) => [
+                'id' => $customer->id,
+                'name' => $customer->fullName(),
+                'account_number' => $customer->accountNumber(),
+            ])->all(),
         ];
+    }
+
+    private function accountOptionLabel(Account $account): string
+    {
+        $holders = $account->customers->map(
+            fn (Customer $customer) => "{$customer->fullName()} ({$customer->accountNumber()})",
+        )->implode(', ');
+
+        return "{$account->label()}".($holders !== '' ? " — {$holders}" : '');
     }
 }

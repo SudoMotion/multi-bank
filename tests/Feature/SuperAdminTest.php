@@ -63,9 +63,10 @@ class SuperAdminTest extends TestCase
 
     private function account(Tenant $tenant, int $balance = 0, string $currency = 'CAD'): Account
     {
-        return $this->inTenant($tenant, function () use ($balance, $currency) {
+        return $this->inTenant($tenant, function () use ($tenant, $balance, $currency) {
             $customer = Customer::create(['first_name' => 'Ada', 'last_name' => 'Lovelace', 'status' => 'active']);
-            $account = Account::create(['customer_id' => $customer->id, 'type' => 'checking', 'currency' => $currency]);
+            $account = Account::create(['type' => 'checking', 'currency' => $currency, 'name' => 'Primary']);
+            $account->customers()->attach($customer->id, ['tenant_id' => $tenant->id]);
 
             if ($balance > 0) {
                 app(LedgerService::class)->deposit($account, $balance);
@@ -179,8 +180,10 @@ class SuperAdminTest extends TestCase
         $beta = $this->tenant('beta');
         $betaAccount = $this->account($beta, 10_000);
 
+        $betaCustomerId = $this->inTenant($beta, fn () => $betaAccount->customers()->value('customers.id'));
+
         $this->actingAs($this->root)
-            ->get($this->centralUrl("admin/platform/banks/{$alpha->id}/customers/{$betaAccount->customer_id}"))
+            ->get($this->centralUrl("admin/platform/banks/{$alpha->id}/customers/{$betaCustomerId}"))
             ->assertNotFound();
 
         $this->get($this->centralUrl("admin/platform/banks/{$alpha->id}/accounts/{$betaAccount->id}"))
@@ -254,8 +257,6 @@ class SuperAdminTest extends TestCase
         $this->actingAs($this->root);
         $url = $this->centralUrl("admin/platform/banks/{$alpha->id}/transactions");
 
-        $account->load('customer');
-
         $this->post($url, ['operation' => 'withdrawal', 'account_id' => $account->id, 'amount' => '10.01'])
             ->assertSessionHasErrors(['amount' => 'Insufficient funds in account '.$account->label().'.']);
 
@@ -294,16 +295,18 @@ class SuperAdminTest extends TestCase
         $this->assertSame(Account::STATUS_CLOSED, $account->fresh()->status);
     }
 
-    public function test_customer_with_accounts_cannot_be_deleted(): void
+    public function test_customer_with_linked_accounts_can_be_deleted(): void
     {
         $alpha = $this->tenant('alpha');
         $account = $this->account($alpha);
+        $customerId = $this->inTenant($alpha, fn () => $account->customers()->value('customers.id'));
 
         $this->actingAs($this->root)
-            ->delete($this->centralUrl("admin/platform/banks/{$alpha->id}/customers/{$account->customer_id}"))
-            ->assertSessionHas('error');
+            ->delete($this->centralUrl("admin/platform/banks/{$alpha->id}/customers/{$customerId}"))
+            ->assertRedirect();
 
-        $this->assertTrue(Customer::acrossTenants()->whereKey($account->customer_id)->exists());
+        $this->assertFalse(Customer::acrossTenants()->whereKey($customerId)->exists());
+        $this->assertTrue(Account::acrossTenants()->whereKey($account->id)->exists());
     }
 
     public function test_bank_site_settings_are_edited_in_the_bank_scope(): void
@@ -338,6 +341,7 @@ class SuperAdminTest extends TestCase
     {
         $alpha = $this->tenant('alpha');
         $account = $this->account($alpha, 12_345);
+        $customerId = $this->inTenant($alpha, fn () => $account->customers()->value('customers.id'));
         $base = "admin/platform/banks/{$alpha->id}";
 
         $pages = [
@@ -348,8 +352,8 @@ class SuperAdminTest extends TestCase
             $base => 'Admin/Platform/Banks/Overview',
             "{$base}/customers" => 'Admin/Platform/Banks/Customers/Index',
             "{$base}/customers/create" => 'Admin/Platform/Banks/Customers/Create',
-            "{$base}/customers/{$account->customer_id}" => 'Admin/Platform/Banks/Customers/Show',
-            "{$base}/customers/{$account->customer_id}/edit" => 'Admin/Platform/Banks/Customers/Edit',
+            "{$base}/customers/{$customerId}" => 'Admin/Platform/Banks/Customers/Show',
+            "{$base}/customers/{$customerId}/edit" => 'Admin/Platform/Banks/Customers/Edit',
             "{$base}/accounts" => 'Admin/Platform/Banks/Accounts/Index',
             "{$base}/accounts/create" => 'Admin/Platform/Banks/Accounts/Create',
             "{$base}/accounts/{$account->id}" => 'Admin/Platform/Banks/Accounts/Show',

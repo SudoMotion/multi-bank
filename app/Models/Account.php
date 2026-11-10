@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Tenancy\Concerns\BelongsToTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -39,7 +39,6 @@ class Account extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'customer_id',
         'name',
         'type',
         'currency',
@@ -61,7 +60,6 @@ class Account extends Model
     {
         return [
             'balance' => 'integer',
-            'customer_id' => 'integer',
             'opened_at' => 'datetime',
             'closed_at' => 'datetime',
         ];
@@ -74,9 +72,11 @@ class Account extends Model
         });
     }
 
-    public function customer(): BelongsTo
+    public function customers(): BelongsToMany
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsToMany(Customer::class, 'account_customer')
+            ->withPivot('tenant_id')
+            ->withTimestamps();
     }
 
     public function transactions(): HasMany
@@ -101,7 +101,9 @@ class Account extends Model
         }
 
         $type = self::TYPES[$this->type] ?? ucfirst($this->type);
-        $customer = $this->relationLoaded('customer') ? $this->customer : $this->customer()->first();
+        $customer = $this->relationLoaded('customers')
+            ? $this->customers->first()
+            : $this->customers()->first();
         $suffix = $customer ? substr($customer->accountNumber(), -4) : '****';
 
         return "{$type} ••{$suffix}";
@@ -113,6 +115,11 @@ class Account extends Model
             return $query;
         }
 
-        return $query->whereHas('customer', fn (Builder $customer) => $customer->search($term));
+        $like = '%'.addcslashes($term, '%_\\').'%';
+
+        return $query->where(function (Builder $query) use ($term, $like) {
+            $query->where('name', 'like', $like)
+                ->orWhereHas('customers', fn (Builder $customer) => $customer->search($term));
+        });
     }
 }

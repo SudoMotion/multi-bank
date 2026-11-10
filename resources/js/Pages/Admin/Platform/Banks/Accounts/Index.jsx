@@ -51,7 +51,7 @@ export default function Index({ workspace, accounts, filters, statuses, types, c
                     head={
                         <>
                             <Th>Product</Th>
-                            <Th>Customer</Th>
+                            <Th>Customers</Th>
                             <Th>Type</Th>
                             <Th>Status</Th>
                             <Th align="right">Balance</Th>
@@ -70,16 +70,27 @@ export default function Index({ workspace, accounts, filters, statuses, types, c
                                 </Link>
                             </Td>
                             <Td>
-                                {account.customer && (
-                                    <Link
-                                        href={route('admin.platform.banks.customers.show', [bankId, account.customer.id])}
-                                        className="hover:underline"
-                                    >
-                                        <p className="text-neutral-800">{account.customer.name}</p>
-                                        <p className="font-mono text-xs text-neutral-500">
-                                            {account.customer.account_number}
-                                        </p>
-                                    </Link>
+                                {account.customers?.length > 0 ? (
+                                    <ul className="space-y-1">
+                                        {account.customers.map((holder) => (
+                                            <li key={holder.id}>
+                                                <Link
+                                                    href={route('admin.platform.banks.customers.show', [
+                                                        bankId,
+                                                        holder.id,
+                                                    ])}
+                                                    className="hover:underline"
+                                                >
+                                                    <p className="text-neutral-800">{holder.name}</p>
+                                                    <p className="font-mono text-xs text-neutral-500">
+                                                        {holder.account_number}
+                                                    </p>
+                                                </Link>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <span className="text-neutral-400">—</span>
                                 )}
                             </Td>
                             <Td>{account.type_label}</Td>

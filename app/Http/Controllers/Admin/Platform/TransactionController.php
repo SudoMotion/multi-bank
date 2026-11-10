@@ -32,7 +32,7 @@ class TransactionController extends BankWorkspaceController
         ]);
 
         $transactions = $this->inBank($tenant, fn () => Transaction::query()
-            ->with(['account.customer', 'relatedAccount', 'creator'])
+            ->with(['account.customers', 'relatedAccount', 'creator'])
             ->when($filters['search'] ?? null, function (Builder $query, string $search) {
                 $like = '%'.addcslashes($search, '%_\\').'%';
 
@@ -70,14 +70,14 @@ class TransactionController extends BankWorkspaceController
 
         $payload = $this->inBank($tenant, function () use ($customerId, $request) {
             $accounts = Account::query()
-                ->with('customer')
+                ->with('customers')
                 ->where('status', '!=', Account::STATUS_CLOSED)
-                ->when($customerId, fn ($query) => $query->where('customer_id', $customerId))
+                ->when($customerId, fn ($query) => $query->whereHas('customers', fn ($q) => $q->whereKey($customerId)))
                 ->orderBy('id')
                 ->get()
                 ->map(fn (Account $account) => [
                     'value' => $account->id,
-                    'label' => "{$account->label()} — {$account->customer?->fullName()} ({$account->customer?->accountNumber()})",
+                    'label' => $this->accountOptionLabel($account),
                     'currency' => $account->currency,
                     'status' => $account->status,
                     'balance' => Money::format($account->balance, $account->currency),
@@ -124,8 +124,8 @@ class TransactionController extends BankWorkspaceController
         $message = $this->inBank($tenant, function () use ($data, $amount, $request, $ledger) {
             $account = $this->findAccount($data['account_id'], 'account_id');
 
-            if (! empty($data['customer_id']) && (int) $account->customer_id !== (int) $data['customer_id']) {
-                throw ValidationException::withMessages(['account_id' => 'Choose an account that belongs to this customer.']);
+            if (! empty($data['customer_id']) && ! $account->customers()->whereKey($data['customer_id'])->exists()) {
+                throw ValidationException::withMessages(['account_id' => 'Choose an account assigned to this customer.']);
             }
 
             try {
@@ -208,5 +208,14 @@ class TransactionController extends BankWorkspaceController
     {
         return Account::query()->find($id)
             ?? throw ValidationException::withMessages([$field => 'That account does not belong to this bank.']);
+    }
+
+    private function accountOptionLabel(Account $account): string
+    {
+        $holders = $account->customers->map(
+            fn (Customer $customer) => "{$customer->fullName()} ({$customer->accountNumber()})",
+        )->implode(', ');
+
+        return "{$account->label()}".($holders !== '' ? " — {$holders}" : '');
     }
 }

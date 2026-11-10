@@ -193,7 +193,7 @@ class LedgerService
         sort($ids);
 
         $accounts = Account::query()
-            ->with('customer')
+            ->with('customers')
             ->whereKey($ids)
             ->orderBy('id')
             ->lockForUpdate()

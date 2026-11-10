@@ -112,11 +112,7 @@ export default function Index({ workspace, customers, filters, statuses, can }) 
                                     )}
                                     {can.delete && (
                                         <DeleteAction
-                                            title={
-                                                customer.accounts_count > 0
-                                                    ? 'Remove all accounts before deleting'
-                                                    : 'Delete customer'
-                                            }
+                                            title="Delete customer"
                                             onClick={() => setDeleting(customer)}
                                         />
                                     )}

@@ -87,12 +87,13 @@ class CustomerPortalTest extends TestCase
                 'status' => Customer::STATUS_ACTIVE,
             ]);
 
-            Account::create([
-                'customer_id' => $customer->id,
+            $account = Account::create([
                 'type' => 'checking',
                 'currency' => 'CAD',
                 'balance' => 125000,
+                'name' => 'Everyday',
             ]);
+            $account->customers()->attach($customer->id, ['tenant_id' => $tenant->id]);
 
             return $customer;
         });

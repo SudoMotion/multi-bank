@@ -109,7 +109,7 @@ export default function CustomerForm({
             {accountOptions.length > 0 && (
                 <Card
                     title="Assign accounts"
-                    description="Link deposit products from this bank to this customer."
+                    description="Select product accounts this customer may use. The same account can be assigned to multiple customers."
                 >
                     <div className="flex gap-3">
                         {accountOptions.map((option) => (
@@ -133,8 +133,7 @@ export default function CustomerForm({
             {accountNumberEditable && accountOptions.length === 0 && (
                 <Card title="Assign accounts">
                     <p className="text-sm text-neutral-600">
-                        No unassigned accounts are available. Create an account under Accounts first, then return
-                        here to assign it.
+                        No product accounts exist yet. Create one under Accounts, then assign it here.
                     </p>
                 </Card>
             )}

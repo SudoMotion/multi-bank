@@ -36,7 +36,7 @@ class DashboardController extends Controller
 
         $transactions = Transaction::query()
             ->whereIn('account_id', $accountIds)
-            ->with('account:id,type,customer_id')
+            ->with('account:id,type,name')
             ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->limit(25)
