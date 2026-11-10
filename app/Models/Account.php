@@ -40,8 +40,10 @@ class Account extends Model
      */
     protected $fillable = [
         'customer_id',
+        'name',
         'type',
         'currency',
+        'status',
     ];
 
     /**
@@ -94,6 +96,10 @@ class Account extends Model
 
     public function label(): string
     {
+        if (filled($this->name)) {
+            return $this->name;
+        }
+
         $type = self::TYPES[$this->type] ?? ucfirst($this->type);
         $customer = $this->relationLoaded('customer') ? $this->customer : $this->customer()->first();
         $suffix = $customer ? substr($customer->accountNumber(), -4) : '****';

@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\Admin\Platform;
 
-use App\Banking\LedgerException;
 use App\Banking\LedgerService;
 use App\Http\Requests\Admin\Platform\StoreAccountRequest;
 use App\Http\Requests\Admin\Platform\StoreTransactionRequest;
 use App\Models\Account;
-use App\Models\Customer;
 use App\Models\Tenant;
 use App\Models\Transaction;
 use App\Support\GlobalSettings;
@@ -56,54 +54,25 @@ class AccountController extends BankWorkspaceController
         ]);
     }
 
-    public function create(Request $request, Tenant $tenant, GlobalSettings $settings): Response
+    public function create(Tenant $tenant): Response
     {
-        $customers = $this->inBank($tenant, fn () => Customer::query()
-            ->where('status', Customer::STATUS_ACTIVE)
-            ->orderBy('last_name')
-            ->orderBy('first_name')
-            ->get()
-            ->map(fn (Customer $customer) => [
-                'value' => $customer->id,
-                'label' => "{$customer->fullName()} ({$customer->accountNumber()})",
-            ])
-            ->all());
-
         return $this->render($tenant, 'accounts', 'Admin/Platform/Banks/Accounts/Create', [
-            'customers' => $customers,
-            'types' => $this->options(Account::TYPES),
-            'currencies' => collect($settings->currencies())->map(fn (string $code) => ['value' => $code, 'label' => $code])->all(),
-            'defaults' => [
-                'customer_id' => $request->integer('customer') ?: '',
-                'currency' => $settings->get('system.default_currency'),
-            ],
+            'statuses' => $this->options(Account::STATUSES),
+            'defaultStatus' => Account::STATUS_ACTIVE,
         ]);
     }
 
-    public function store(StoreAccountRequest $request, Tenant $tenant, LedgerService $ledger): RedirectResponse
+    public function store(StoreAccountRequest $request, Tenant $tenant, GlobalSettings $settings): RedirectResponse
     {
-        $account = $this->inBank($tenant, function () use ($request, $ledger) {
-            try {
-                return DB::transaction(function () use ($request, $ledger) {
-                    $account = Account::create($request->safe()->only(['customer_id', 'type', 'currency']));
-                    $initial = $request->validated('initial_deposit');
-
-                    if (filled($initial) && Money::toMinor($initial) > 0) {
-                        $ledger->deposit($account, Money::toMinor($initial), 'Initial deposit', $request->user());
-                    }
-
-                    return $account;
-                });
-            } catch (LedgerException $exception) {
-                throw ValidationException::withMessages(['initial_deposit' => $exception->getMessage()]);
-            }
-        });
-
-        $account->load('customer');
+        $account = $this->inBank($tenant, fn () => Account::create([
+            ...$request->accountAttributes(),
+            'type' => 'checking',
+            'currency' => $settings->get('system.default_currency'),
+        ]));
 
         return redirect()
             ->route('admin.platform.banks.accounts.show', [$tenant, $account->id])
-            ->with('success', ucfirst($account->type).' account opened for '.$account->customer->fullName().'.');
+            ->with('success', "Account \"{$account->name}\" created.");
     }
 
     public function show(Request $request, Tenant $tenant, int $account, LedgerService $ledger): Response
@@ -185,6 +154,7 @@ class AccountController extends BankWorkspaceController
     {
         return [
             'id' => $account->id,
+            'name' => $account->name,
             'label' => $account->label(),
             'type' => $account->type,
             'type_label' => Account::TYPES[$account->type] ?? $account->type,

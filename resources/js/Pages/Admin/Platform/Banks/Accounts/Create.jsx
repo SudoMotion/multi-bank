@@ -3,17 +3,13 @@ import { Button, Card, Input, Select } from '@/Components/UI';
 import BankWorkspaceLayout from '@/Layouts/Admin/BankWorkspaceLayout';
 import { Link, useForm } from '@inertiajs/react';
 
-export default function Create({ workspace, customers, types, currencies, defaults }) {
+export default function Create({ workspace, statuses, defaultStatus }) {
     const bankId = workspace.bank.id;
-    const backHref = defaults.customer_id
-        ? route('admin.platform.banks.customers.show', [bankId, defaults.customer_id])
-        : route('admin.platform.banks.accounts.index', bankId);
+    const backHref = route('admin.platform.banks.accounts.index', bankId);
 
     const { data, setData, post, processing, errors } = useForm({
-        customer_id: defaults.customer_id,
-        type: types[0]?.value ?? '',
-        currency: defaults.currency,
-        initial_deposit: '',
+        name: '',
+        status: defaultStatus,
     });
 
     const submit = (e) => {
@@ -26,50 +22,29 @@ export default function Create({ workspace, customers, types, currencies, defaul
             workspace={workspace}
             title="Open account"
             backHref={backHref}
-            backLabel="Back"
+            backLabel="Back to accounts"
         >
             <AdminForm onSubmit={submit} className="space-y-4">
-                <Card title="Account Details">
+                <Card title="Account details">
                     <AdminFormGrid>
-                        <Select
-                            id="customer_id"
-                            label="Customer"
+                        <Input
+                            id="name"
+                            label="Account name"
                             required
                             wrapperClassName="sm:col-span-2"
-                            placeholder={customers.length ? 'Select a customer' : 'No active customers'}
-                            options={customers}
-                            value={data.customer_id}
-                            error={errors.customer_id}
-                            onChange={(e) => setData('customer_id', e.target.value)}
+                            value={data.name}
+                            error={errors.name}
+                            onChange={(e) => setData('name', e.target.value)}
                         />
                         <Select
-                            id="type"
-                            label="Type"
+                            id="status"
+                            label="Status"
                             required
                             placeholder={null}
-                            options={types}
-                            value={data.type}
-                            error={errors.type}
-                            onChange={(e) => setData('type', e.target.value)}
-                        />
-                        <Select
-                            id="currency"
-                            label="Currency"
-                            required
-                            placeholder={null}
-                            options={currencies}
-                            value={data.currency}
-                            error={errors.currency}
-                            onChange={(e) => setData('currency', e.target.value)}
-                        />
-                        <Input
-                            id="initial_deposit"
-                            label="Initial Deposit"
-                            inputMode="decimal"
-                            placeholder="0.00"
-                            value={data.initial_deposit}
-                            error={errors.initial_deposit}
-                            onChange={(e) => setData('initial_deposit', e.target.value)}
+                            options={statuses}
+                            value={data.status}
+                            error={errors.status}
+                            onChange={(e) => setData('status', e.target.value)}
                         />
                     </AdminFormGrid>
                 </Card>
@@ -81,7 +56,7 @@ export default function Create({ workspace, customers, types, currencies, defaul
                         </Button>
                     </Link>
                     <Button type="submit" disabled={processing}>
-                        Open account
+                        Create account
                     </Button>
                 </div>
             </AdminForm>
