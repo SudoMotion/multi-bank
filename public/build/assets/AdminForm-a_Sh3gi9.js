@@ -1,0 +1,1 @@
+import{l as e,u as t}from"./app-CaGUyKJT.js";var n=e();function r({className:e=``,children:r,...i}){return(0,n.jsx)(`form`,{className:t(`w-full`,e),...i,children:r})}function i({className:e=``,children:r}){return(0,n.jsx)(`div`,{className:t(`grid w-full grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`,e),children:r})}export{i as n,r as t};
