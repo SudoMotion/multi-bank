@@ -39,8 +39,11 @@ class SiteData
         $settings = Setting::current();
         $tenant = app(TenantContext::class)->get();
 
+        $applicationName = $settings->application_name ?: ($tenant?->name ?? config('app.name'));
+
         return [
-            'name' => $settings->application_name ?: ($tenant?->name ?? config('app.name')),
+            'name' => $applicationName,
+            'application_name' => $applicationName,
             'email' => $settings->email,
             'phone' => $settings->phone,
             'address' => $settings->address,

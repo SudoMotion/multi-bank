@@ -2,6 +2,14 @@ import Container from '@/Components/Frontend/Container';
 import SiteFavicon from '@/Components/SiteFavicon';
 import { Link, usePage } from '@inertiajs/react';
 
+export function CustomerAuthLink({ href, children }) {
+    return (
+        <Link href={href} className="text-[15px] text-[#006ac3] hover:underline">
+            {children}
+        </Link>
+    );
+}
+
 export default function CustomerAuthLayout({ title, children }) {
     const { site, tenant } = usePage().props;
 
