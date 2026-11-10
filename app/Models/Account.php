@@ -76,8 +76,11 @@ class Account extends Model
     public static function generateNumber(): string
     {
         do {
-            $number = (string) random_int(1000000000, 9999999999);
-        } while (static::query()->where('account_number', $number)->exists());
+            $number = '';
+            for ($i = 0; $i < 16; $i++) {
+                $number .= (string) random_int(0, 9);
+            }
+        } while (static::acrossTenants()->where('account_number', $number)->exists());
 
         return $number;
     }

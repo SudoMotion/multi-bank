@@ -57,7 +57,6 @@ class DashboardController extends Controller
         return Inertia::render('Customer/Dashboard/Index', [
             'customer' => [
                 'name' => $customer->fullName(),
-                'customer_number' => $customer->customer_number,
                 'email' => $customer->email,
             ],
             'accounts' => $accounts,
