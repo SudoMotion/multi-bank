@@ -1,1 +1,0 @@
-import{l as e}from"./app-CaGUyKJT.js";import{_ as t}from"./UI-6ruOaRVU.js";var n=e();function r(e){return(0,n.jsx)(t,{variant:`primary`,size:`sm`,...e})}export{r as t};
