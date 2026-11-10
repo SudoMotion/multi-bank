@@ -1,0 +1,1 @@
+import{a as e}from"./app-BoUHDelo.js";function t(){return e().props.tenant??null}function n(){return e().props.tenancy?.isCentral??!0}export{t as n,n as t};

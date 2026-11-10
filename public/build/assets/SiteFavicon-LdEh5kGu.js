@@ -1,1 +1,0 @@
-import{a as e,l as t,t as n}from"./app-C1qwMC4f.js";var r=t();function i(){let{site:t}=e().props;return t?.favicon_url?(0,r.jsx)(n,{children:(0,r.jsx)(`link`,{rel:`icon`,href:t.favicon_url})}):null}export{i as t};
