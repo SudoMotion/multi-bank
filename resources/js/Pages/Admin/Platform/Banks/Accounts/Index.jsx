@@ -1,10 +1,25 @@
+import DeleteAccountDialog from '@/Components/Admin/DeleteAccountDialog';
 import FilterBar from '@/Components/Admin/FilterBar';
-import { Button, Card, Pagination, StatusBadge, Table, Td, Th, ViewAction } from '@/Components/UI';
+import {
+    ActionButtonGroup,
+    Button,
+    Card,
+    DeleteAction,
+    EditAction,
+    Pagination,
+    StatusBadge,
+    Table,
+    Td,
+    Th,
+    ViewAction,
+} from '@/Components/UI';
 import BankWorkspaceLayout from '@/Layouts/Admin/BankWorkspaceLayout';
 import { Link } from '@inertiajs/react';
+import { useState } from 'react';
 
 export default function Index({ workspace, accounts, filters, statuses, types, can }) {
     const bankId = workspace.bank.id;
+    const [deleting, setDeleting] = useState(null);
 
     return (
         <BankWorkspaceLayout
@@ -75,7 +90,24 @@ export default function Index({ workspace, accounts, filters, statuses, types, c
                                 {account.balance.formatted}
                             </Td>
                             <Td align="right">
-                                <ViewAction href={route('admin.platform.banks.accounts.show', [bankId, account.id])} />
+                                <ActionButtonGroup className="justify-end">
+                                    <ViewAction href={route('admin.platform.banks.accounts.show', [bankId, account.id])} />
+                                    {can.edit && (
+                                        <EditAction
+                                            href={route('admin.platform.banks.accounts.edit', [bankId, account.id])}
+                                        />
+                                    )}
+                                    {can.delete && (
+                                        <DeleteAction
+                                            title={
+                                                account.balance_minor !== 0 || account.transactions_count > 0
+                                                    ? 'Resolve balance and transaction history before deleting'
+                                                    : 'Delete account'
+                                            }
+                                            onClick={() => setDeleting(account)}
+                                        />
+                                    )}
+                                </ActionButtonGroup>
                             </Td>
                         </tr>
                     ))}
@@ -83,6 +115,12 @@ export default function Index({ workspace, accounts, filters, statuses, types, c
 
                 <Pagination paginator={accounts} />
             </Card>
+
+            <DeleteAccountDialog
+                account={deleting}
+                bankId={bankId}
+                onClose={() => setDeleting(null)}
+            />
         </BankWorkspaceLayout>
     );
 }

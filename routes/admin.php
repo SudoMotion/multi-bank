@@ -179,6 +179,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
                         Route::get('accounts/{account}', [AccountController::class, 'show'])
                             ->whereNumber('account')
                             ->name('accounts.show');
+                        Route::get('accounts/{account}/edit', [AccountController::class, 'edit'])
+                            ->whereNumber('account')
+                            ->middleware('permission:accounts.edit')
+                            ->name('accounts.edit');
+                        Route::put('accounts/{account}', [AccountController::class, 'update'])
+                            ->whereNumber('account')
+                            ->middleware('permission:accounts.edit')
+                            ->name('accounts.update');
+                        Route::delete('accounts/{account}', [AccountController::class, 'destroy'])
+                            ->whereNumber('account')
+                            ->middleware('permission:accounts.delete')
+                            ->name('accounts.destroy');
                         Route::patch('accounts/{account}/status', [AccountController::class, 'updateStatus'])
                             ->whereNumber('account')
                             ->middleware('permission:accounts.edit')

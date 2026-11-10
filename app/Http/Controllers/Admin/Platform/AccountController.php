@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Platform;
 
 use App\Banking\LedgerService;
 use App\Http\Requests\Admin\Platform\StoreAccountRequest;
+use App\Http\Requests\Admin\Platform\UpdateAccountRequest;
 use App\Http\Requests\Admin\Platform\StoreTransactionRequest;
 use App\Models\Account;
 use App\Models\Tenant;
@@ -31,6 +32,7 @@ class AccountController extends BankWorkspaceController
 
         $accounts = $this->inBank($tenant, fn () => Account::query()
             ->with('customer')
+            ->withCount('transactions')
             ->search($filters['search'] ?? null)
             ->when($filters['status'] ?? null, fn ($query, string $status) => $query->where('status', $status))
             ->when($filters['type'] ?? null, fn ($query, string $type) => $query->where('type', $type))
@@ -50,6 +52,8 @@ class AccountController extends BankWorkspaceController
             'types' => $this->options(Account::TYPES),
             'can' => [
                 'create' => $request->user()->can('accounts.create'),
+                'edit' => $request->user()->can('accounts.edit'),
+                'delete' => $request->user()->can('accounts.delete'),
             ],
         ]);
     }
@@ -73,6 +77,75 @@ class AccountController extends BankWorkspaceController
         return redirect()
             ->route('admin.platform.banks.accounts.show', [$tenant, $account->id])
             ->with('success', "Account \"{$account->name}\" created.");
+    }
+
+    public function edit(Tenant $tenant, int $account): Response
+    {
+        $props = $this->inBank($tenant, fn () => [
+            'account' => $this->presentAccount(Account::query()->findOrFail($account)),
+        ]);
+
+        return $this->render($tenant, 'accounts', 'Admin/Platform/Banks/Accounts/Edit', [
+            ...$props,
+            'statuses' => $this->options(Account::STATUSES),
+        ]);
+    }
+
+    public function update(UpdateAccountRequest $request, Tenant $tenant, int $account): RedirectResponse
+    {
+        $message = $this->inBank($tenant, fn () => DB::transaction(function () use ($request, $account) {
+            $model = Account::query()->lockForUpdate()->findOrFail($account);
+
+            if ($model->isClosed()) {
+                throw ValidationException::withMessages(['status' => 'Closed accounts cannot be edited.']);
+            }
+
+            $status = $request->validated('status');
+
+            if ($status === Account::STATUS_CLOSED && $model->balance !== 0) {
+                throw ValidationException::withMessages([
+                    'status' => 'Only accounts with a zero balance can be closed.',
+                ]);
+            }
+
+            $model->fill($request->accountAttributes());
+            $model->closed_at = $status === Account::STATUS_CLOSED ? now() : null;
+            $model->save();
+
+            return "Account \"{$model->name}\" updated.";
+        }));
+
+        return redirect()
+            ->route('admin.platform.banks.accounts.show', [$tenant, $account])
+            ->with('success', $message);
+    }
+
+    public function destroy(Tenant $tenant, int $account): RedirectResponse
+    {
+        $result = $this->inBank($tenant, function () use ($account) {
+            $model = Account::query()->withCount('transactions')->findOrFail($account);
+
+            if ($model->balance !== 0) {
+                return ['error' => 'Withdraw or transfer the balance to zero before deleting this account.'];
+            }
+
+            if ($model->transactions_count > 0) {
+                return ['error' => 'Accounts with transaction history cannot be deleted.'];
+            }
+
+            $name = $model->label();
+            $model->delete();
+
+            return ['success' => "Account \"{$name}\" deleted."];
+        });
+
+        if (isset($result['error'])) {
+            return back()->with('error', $result['error']);
+        }
+
+        return redirect()
+            ->route('admin.platform.banks.accounts.index', $tenant)
+            ->with('success', $result['success']);
     }
 
     public function show(Request $request, Tenant $tenant, int $account, LedgerService $ledger): Response
@@ -161,6 +234,8 @@ class AccountController extends BankWorkspaceController
             'currency' => $account->currency,
             'status' => $account->status,
             'balance' => $this->money($account->balance, $account->currency),
+            'balance_minor' => $account->balance,
+            'transactions_count' => $account->transactions_count ?? null,
             'customer' => $account->customer ? [
                 'id' => $account->customer->id,
                 'name' => $account->customer->fullName(),

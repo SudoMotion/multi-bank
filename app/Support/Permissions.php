@@ -34,7 +34,8 @@ class Permissions
             'Accounts' => [
                 'accounts.view' => 'View Accounts',
                 'accounts.create' => 'Open Accounts',
-                'accounts.edit' => 'Freeze & Close Accounts',
+                'accounts.edit' => 'Edit Accounts',
+                'accounts.delete' => 'Delete Accounts',
             ],
             'Transactions' => [
                 'transactions.view' => 'View Transactions',
