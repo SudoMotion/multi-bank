@@ -12,7 +12,7 @@ const highlights = [
 export default function Index({ aboutUs }) {
     const tenant = useTenant();
     const { site } = usePage().props;
-    const signInUrl = tenant?.settings?.online_banking_url;
+    const externalSignIn = tenant?.settings?.online_banking_url;
 
     return (
         <FrontendLayout>
@@ -46,19 +46,27 @@ export default function Index({ aboutUs }) {
                             <p className="mt-2 text-sm text-neutral-500">
                                 View balances, pay bills and manage your cards securely.
                             </p>
-                            {signInUrl ? (
+                            {externalSignIn ? (
                                 <a
-                                    href={signInUrl}
+                                    href={externalSignIn}
                                     className="mt-6 flex w-full items-center justify-center rounded-lg bg-tenant-primary px-4 py-3 text-sm font-semibold text-tenant-on-primary transition hover:opacity-90"
                                 >
                                     Sign in
                                 </a>
                             ) : (
                                 <Link
-                                    href={route('contact')}
+                                    href={route('customer.login')}
                                     className="mt-6 flex w-full items-center justify-center rounded-lg bg-tenant-primary px-4 py-3 text-sm font-semibold text-tenant-on-primary transition hover:opacity-90"
                                 >
-                                    Contact a branch
+                                    Sign in
+                                </Link>
+                            )}
+                            {!externalSignIn && (
+                                <Link
+                                    href={route('customer.register')}
+                                    className="mt-3 flex w-full items-center justify-center rounded-lg border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-800 transition hover:bg-neutral-50"
+                                >
+                                    Register
                                 </Link>
                             )}
                         </div>

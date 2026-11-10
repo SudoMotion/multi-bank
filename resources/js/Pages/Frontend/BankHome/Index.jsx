@@ -26,7 +26,7 @@ const services = [
 export default function Index({ aboutUs }) {
     const tenant = useTenant();
     const { site } = usePage().props;
-    const signInUrl = tenant?.settings?.online_banking_url;
+    const externalSignIn = tenant?.settings?.online_banking_url;
 
     return (
         <FrontendLayout>
@@ -46,14 +46,27 @@ export default function Index({ aboutUs }) {
                     </p>
 
                     <div className="mt-8 flex flex-wrap gap-3">
-                        {signInUrl && (
+                        {externalSignIn ? (
                             <a
-                                href={signInUrl}
+                                href={externalSignIn}
                                 className="inline-flex items-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-neutral-100"
                             >
                                 Sign in to online banking
                             </a>
+                        ) : (
+                            <Link
+                                href={route('customer.login')}
+                                className="inline-flex items-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-neutral-900 shadow-sm transition hover:bg-neutral-100"
+                            >
+                                Sign in to online banking
+                            </Link>
                         )}
+                        <Link
+                            href={route('customer.register')}
+                            className="inline-flex items-center rounded-full border border-current px-6 py-3 text-sm font-semibold transition hover:opacity-80"
+                        >
+                            Register
+                        </Link>
                         <Link
                             href={route('contact')}
                             className="inline-flex items-center rounded-full border border-current px-6 py-3 text-sm font-semibold transition hover:opacity-80"

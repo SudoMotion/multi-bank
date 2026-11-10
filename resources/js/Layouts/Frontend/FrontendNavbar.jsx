@@ -48,33 +48,44 @@ function TenantBrand() {
     );
 }
 
-function SignInButton({ url, className = '' }) {
-    if (!url) {
+function SignInButton({ href, external = false, label = 'Sign in', className = '' }) {
+    if (!href) {
         return null;
     }
 
+    const classNames =
+        'inline-flex items-center justify-center rounded-full bg-tenant-primary px-4 py-2 text-sm font-semibold text-tenant-on-primary transition hover:opacity-90 ' +
+        className;
+
+    if (external) {
+        return (
+            <a href={href} className={classNames}>
+                {label}
+            </a>
+        );
+    }
+
     return (
-        <a
-            href={url}
-            className={
-                'inline-flex items-center justify-center rounded-full bg-tenant-primary px-4 py-2 text-sm font-semibold text-tenant-on-primary transition hover:opacity-90 ' +
-                className
-            }
-        >
-            Sign in
-        </a>
+        <Link href={href} className={classNames}>
+            {label}
+        </Link>
     );
 }
 
 function FrontendNavbar() {
     const tenant = useTenant();
-    const { landing } = usePage().props;
+    const { landing, auth } = usePage().props;
     const [mobileOpen, setMobileOpen] = useState(false);
 
     const links = tenant
         ? tenantLinks
         : centralLinks.filter((link) => link.hash !== '#calculator' || landing?.show_calculator);
-    const signInUrl = tenant?.settings?.online_banking_url;
+    const externalSignIn = tenant?.settings?.online_banking_url;
+    const signInHref = auth?.customer
+        ? route('customer.dashboard')
+        : externalSignIn || (tenant ? route('customer.login') : null);
+    const signInExternal = !auth?.customer && Boolean(externalSignIn);
+    const signInLabel = auth?.customer ? 'My accounts' : 'Sign in';
     const linkClassName = tenant
         ? 'text-sm font-medium text-neutral-700 transition hover:text-tenant-primary'
         : 'text-sm font-medium text-neutral-700 transition hover:text-brand-purple';
@@ -94,7 +105,11 @@ function FrontendNavbar() {
                             </Link>
                         ))}
                         {tenant ? (
-                            <SignInButton url={signInUrl} />
+                            <SignInButton
+                                href={signInHref}
+                                external={signInExternal}
+                                label={signInLabel}
+                            />
                         ) : (
                             <button type="button" className={linkClassName} aria-label="Switch to French">
                                 FR
@@ -142,7 +157,12 @@ function FrontendNavbar() {
                                 </Link>
                             ))}
                             {tenant ? (
-                                <SignInButton url={signInUrl} className="mx-3 mt-2" />
+                                <SignInButton
+                                    href={signInHref}
+                                    external={signInExternal}
+                                    label={signInLabel}
+                                    className="mx-3 mt-2"
+                                />
                             ) : (
                                 <span className="rounded-md px-3 py-2 text-sm font-medium text-neutral-700">
                                     FR
