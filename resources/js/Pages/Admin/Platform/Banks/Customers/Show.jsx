@@ -1,5 +1,4 @@
 import ChangeCustomerPasswordDialog from '@/Components/Admin/ChangeCustomerPasswordDialog';
-import CustomerTransactionDialog from '@/Components/Admin/CustomerTransactionDialog';
 import { Button, Card, StatusBadge, Table, Td, Th } from '@/Components/UI';
 import BankWorkspaceLayout from '@/Layouts/Admin/BankWorkspaceLayout';
 import { Link, router } from '@inertiajs/react';
@@ -14,10 +13,14 @@ function Detail({ label, children }) {
     );
 }
 
-export default function Show({ workspace, customer, can, transactionTypes, transactionStatuses }) {
+export default function Show({ workspace, customer, can }) {
     const bankId = workspace.bank.id;
     const [passwordOpen, setPasswordOpen] = useState(false);
-    const [transactionOpen, setTransactionOpen] = useState(false);
+
+    const transactionsHref = route('admin.platform.banks.customers.transactions.index', [
+        bankId,
+        customer.id,
+    ]);
 
     const destroy = () => {
         if (confirm(`Delete ${customer.name}? This cannot be undone.`)) {
@@ -49,8 +52,10 @@ export default function Show({ workspace, customer, can, transactionTypes, trans
                             </Link>
                         </>
                     )}
-                    {can.transact && (
-                        <Button onClick={() => setTransactionOpen(true)}>Transaction</Button>
+                    {(can.transact || can.viewTransactions) && (
+                        <Link href={transactionsHref}>
+                            <Button variant="secondary">Transactions</Button>
+                        </Link>
                     )}
                 </div>
             }
@@ -130,13 +135,6 @@ export default function Show({ workspace, customer, can, transactionTypes, trans
                 customer={passwordOpen ? customer : null}
                 bankId={bankId}
                 onClose={() => setPasswordOpen(false)}
-            />
-            <CustomerTransactionDialog
-                customer={transactionOpen ? customer : null}
-                bankId={bankId}
-                transactionTypes={transactionTypes}
-                transactionStatuses={transactionStatuses}
-                onClose={() => setTransactionOpen(false)}
             />
         </BankWorkspaceLayout>
     );

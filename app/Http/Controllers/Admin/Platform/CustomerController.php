@@ -2,24 +2,22 @@
 
 namespace App\Http\Controllers\Admin\Platform;
 
-use App\Banking\LedgerException;
-use App\Banking\LedgerService;
 use App\Http\Requests\Admin\Platform\CustomerRequest;
-use App\Http\Requests\Admin\Platform\StoreCustomerTransactionRequest;
 use App\Http\Requests\Admin\Platform\UpdateCustomerPasswordRequest;
-use App\Models\Transaction;
-use App\Support\Money;
-use Illuminate\Validation\ValidationException;
 use App\Models\Account;
+use App\Models\Transaction;
 use App\Models\Customer;
 use App\Models\Tenant;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\Rule;
 use Inertia\Response;
 
 class CustomerController extends BankWorkspaceController
 {
+    use PresentsTransactions;
+
     public function index(Request $request, Tenant $tenant): Response
     {
         $filters = $request->validate([
@@ -30,7 +28,6 @@ class CustomerController extends BankWorkspaceController
         $customers = $this->inBank($tenant, fn () => Customer::query()
             ->search($filters['search'] ?? null)
             ->when($filters['status'] ?? null, fn ($query, string $status) => $query->where('status', $status))
-            ->with(['accounts' => fn ($query) => $query->orderBy('name')->orderBy('id')])
             ->withCount('accounts')
             ->orderBy('last_name')
             ->orderBy('first_name')
@@ -45,12 +42,6 @@ class CustomerController extends BankWorkspaceController
                 'status' => $customer->status,
                 'accounts_count' => $customer->accounts_count,
                 'created_at' => $customer->created_at?->format('M j, Y'),
-                'accounts' => $customer->accounts->map(fn (Account $account) => [
-                    'id' => $account->id,
-                    'label' => $account->label(),
-                    'status' => $account->status,
-                    'balance' => $this->money($account->balance, $account->currency),
-                ])->all(),
             ]));
 
         return $this->render($tenant, 'customers', 'Admin/Platform/Banks/Customers/Index', [
@@ -61,8 +52,6 @@ class CustomerController extends BankWorkspaceController
             ],
             'statuses' => $this->options(Customer::STATUSES),
             'can' => $this->abilities($request),
-            'transactionTypes' => $this->options(Transaction::CUSTOMER_TYPES),
-            'transactionStatuses' => $this->options(Transaction::STATUSES),
         ]);
     }
 
@@ -105,8 +94,60 @@ class CustomerController extends BankWorkspaceController
         return $this->render($tenant, 'customers', 'Admin/Platform/Banks/Customers/Show', [
             ...$props,
             'can' => $this->abilities($request),
-            'transactionTypes' => $this->options(Transaction::CUSTOMER_TYPES),
-            'transactionStatuses' => $this->options(Transaction::STATUSES),
+        ]);
+    }
+
+    public function transactions(Request $request, Tenant $tenant, int $customer): Response
+    {
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'type' => ['nullable', Rule::in(array_keys(Transaction::TYPES))],
+            'status' => ['nullable', Rule::in(array_keys(Transaction::STATUSES))],
+            'from' => ['nullable', 'date'],
+            'to' => ['nullable', 'date'],
+        ]);
+
+        $props = $this->inBank($tenant, function () use ($customer, $filters) {
+            $model = Customer::query()->findOrFail($customer);
+
+            $transactions = Transaction::query()
+                ->with(['account.customer', 'relatedAccount', 'creator'])
+                ->whereHas('account', fn (Builder $query) => $query->where('customer_id', $customer))
+                ->when($filters['search'] ?? null, function (Builder $query, string $search) {
+                    $like = '%'.addcslashes($search, '%_\\').'%';
+
+                    $query->where(fn (Builder $query) => $query
+                        ->where('reference', 'like', $like)
+                        ->orWhere('description', 'like', $like));
+                })
+                ->when($filters['type'] ?? null, fn (Builder $query, string $type) => $query->where('type', $type))
+                ->when($filters['status'] ?? null, fn (Builder $query, string $status) => $query->where('status', $status))
+                ->when($filters['from'] ?? null, fn (Builder $query, string $from) => $query->whereDate('created_at', '>=', $from))
+                ->when($filters['to'] ?? null, fn (Builder $query, string $to) => $query->whereDate('created_at', '<=', $to))
+                ->latest('id')
+                ->paginate(25)
+                ->withQueryString()
+                ->through(fn (Transaction $transaction) => $this->presentTransaction($transaction));
+
+            return [
+                'customer' => $this->present($model),
+                'transactions' => $transactions,
+                'accounts_count' => $model->accounts()->count(),
+            ];
+        });
+
+        return $this->render($tenant, 'customers', 'Admin/Platform/Banks/Customers/Transactions', [
+            ...$props,
+            'filters' => [
+                'search' => $filters['search'] ?? '',
+                'type' => $filters['type'] ?? '',
+                'status' => $filters['status'] ?? '',
+                'from' => $filters['from'] ?? '',
+                'to' => $filters['to'] ?? '',
+            ],
+            'types' => $this->options(Transaction::TYPES),
+            'statuses' => $this->options(Transaction::STATUSES),
+            'can' => $this->abilities($request),
         ]);
     }
 
@@ -156,40 +197,6 @@ class CustomerController extends BankWorkspaceController
         return redirect()
             ->route('admin.platform.banks.customers.show', [$tenant, $model->id])
             ->with('success', 'Customer updated.');
-    }
-
-    public function storeTransaction(
-        StoreCustomerTransactionRequest $request,
-        Tenant $tenant,
-        int $customer,
-        LedgerService $ledger,
-    ): RedirectResponse {
-        $data = $request->validated();
-        $amount = Money::toMinor($data['amount']);
-
-        $message = $this->inBank($tenant, function () use ($data, $amount, $request, $ledger, $customer) {
-            $account = Account::query()->where('customer_id', $customer)->findOrFail($data['account_id']);
-
-            try {
-                $transaction = $ledger->postForCustomer(
-                    $account,
-                    $data['type'],
-                    $amount,
-                    $data['status'],
-                    $data['description'] ?? null,
-                    $request->user(),
-                );
-            } catch (LedgerException $exception) {
-                throw ValidationException::withMessages(['amount' => $exception->getMessage()]);
-            }
-
-            $label = Transaction::TYPES[$transaction->type] ?? $transaction->type;
-
-            return "{$label} of ".Money::format(abs($transaction->amount), $transaction->currency)
-                ." recorded ({$transaction->status}, ref {$transaction->reference}).";
-        });
-
-        return back()->with('success', $message);
     }
 
     public function updatePassword(UpdateCustomerPasswordRequest $request, Tenant $tenant, int $customer): RedirectResponse
@@ -290,6 +297,7 @@ class CustomerController extends BankWorkspaceController
             'delete' => $user->can('customers.delete'),
             'openAccount' => $user->can('accounts.create'),
             'transact' => $user->can('transactions.create'),
+            'viewTransactions' => $user->can('transactions.view'),
         ];
     }
 }

@@ -1,5 +1,4 @@
 import ChangeCustomerPasswordDialog from '@/Components/Admin/ChangeCustomerPasswordDialog';
-import CustomerTransactionDialog from '@/Components/Admin/CustomerTransactionDialog';
 import DeleteCustomerDialog from '@/Components/Admin/DeleteCustomerDialog';
 import FilterBar from '@/Components/Admin/FilterBar';
 import {
@@ -21,19 +20,10 @@ import BankWorkspaceLayout from '@/Layouts/Admin/BankWorkspaceLayout';
 import { Link } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function Index({
-    workspace,
-    customers,
-    filters,
-    statuses,
-    can,
-    transactionTypes,
-    transactionStatuses,
-}) {
+export default function Index({ workspace, customers, filters, statuses, can }) {
     const bankId = workspace.bank.id;
     const [deleting, setDeleting] = useState(null);
     const [passwordCustomer, setPasswordCustomer] = useState(null);
-    const [transactionCustomer, setTransactionCustomer] = useState(null);
 
     return (
         <BankWorkspaceLayout
@@ -111,10 +101,13 @@ export default function Index({
                                             />
                                         </>
                                     )}
-                                    {can.transact && (
+                                    {(can.transact || can.viewTransactions) && (
                                         <TransactionAction
-                                            title="Transaction"
-                                            onClick={() => setTransactionCustomer(customer)}
+                                            title="Transactions"
+                                            href={route('admin.platform.banks.customers.transactions.index', [
+                                                bankId,
+                                                customer.id,
+                                            ])}
                                         />
                                     )}
                                     {can.delete && (
@@ -146,14 +139,6 @@ export default function Index({
                 customer={passwordCustomer}
                 bankId={bankId}
                 onClose={() => setPasswordCustomer(null)}
-            />
-
-            <CustomerTransactionDialog
-                customer={transactionCustomer}
-                bankId={bankId}
-                transactionTypes={transactionTypes}
-                transactionStatuses={transactionStatuses}
-                onClose={() => setTransactionCustomer(null)}
             />
         </BankWorkspaceLayout>
     );

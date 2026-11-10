@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin\Platform;
 
 use App\Banking\LedgerException;
 use App\Banking\LedgerService;
+use App\Http\Requests\Admin\Platform\StoreAccountTransactionRequest;
 use App\Http\Requests\Admin\Platform\StoreTransactionRequest;
 use App\Models\Account;
+use App\Models\Customer;
 use App\Models\Tenant;
 use App\Models\Transaction;
 use App\Support\Money;
@@ -64,29 +66,96 @@ class TransactionController extends BankWorkspaceController
 
     public function create(Request $request, Tenant $tenant, LedgerService $ledger): Response
     {
-        $accounts = $this->inBank($tenant, fn () => Account::query()
-            ->with('customer')
-            ->where('status', '!=', Account::STATUS_CLOSED)
-            ->orderBy('id')
-            ->get()
-            ->map(fn (Account $account) => [
-                'value' => $account->id,
-                'label' => "{$account->label()} — {$account->customer?->fullName()} ({$account->customer?->accountNumber()})",
-                'currency' => $account->currency,
-                'status' => $account->status,
-                'balance' => Money::format($account->balance, $account->currency),
-            ])
-            ->all());
+        $customerId = $request->integer('customer') ?: null;
+
+        $payload = $this->inBank($tenant, function () use ($customerId, $request) {
+            $accounts = Account::query()
+                ->with('customer')
+                ->where('status', '!=', Account::STATUS_CLOSED)
+                ->when($customerId, fn ($query) => $query->where('customer_id', $customerId))
+                ->orderBy('id')
+                ->get()
+                ->map(fn (Account $account) => [
+                    'value' => $account->id,
+                    'label' => "{$account->label()} — {$account->customer?->fullName()} ({$account->customer?->accountNumber()})",
+                    'currency' => $account->currency,
+                    'status' => $account->status,
+                    'balance' => Money::format($account->balance, $account->currency),
+                ])
+                ->all();
+
+            $customer = $customerId
+                ? Customer::query()->find($customerId)
+                : null;
+
+            $defaultAccountId = $request->integer('account')
+                ?: ($accounts[0]['value'] ?? '');
+
+            return [
+                'accounts' => $accounts,
+                'customer' => $customer ? [
+                    'id' => $customer->id,
+                    'name' => $customer->fullName(),
+                ] : null,
+                'defaults' => [
+                    'type' => 'deposit',
+                    'status' => Transaction::STATUS_COMPLETE,
+                    'account_id' => $defaultAccountId,
+                ],
+            ];
+        });
 
         return $this->render($tenant, 'transactions', 'Admin/Platform/Banks/Transactions/Create', [
-            'accounts' => $accounts,
-            'operations' => $this->options(StoreTransactionRequest::OPERATIONS),
+            ...$payload,
+            'transactionTypes' => $this->options(Transaction::CUSTOMER_TYPES),
+            'transactionStatuses' => $this->options(Transaction::STATUSES),
             'maxAmount' => Money::toDecimal($ledger->maxAmount()),
-            'defaults' => [
-                'operation' => $request->query('operation', 'deposit'),
-                'account_id' => $request->integer('account') ?: '',
-            ],
         ]);
+    }
+
+    public function storeEntry(
+        StoreAccountTransactionRequest $request,
+        Tenant $tenant,
+        LedgerService $ledger,
+    ): RedirectResponse {
+        $data = $request->validated();
+        $amount = Money::toMinor($data['amount']);
+
+        $message = $this->inBank($tenant, function () use ($data, $amount, $request, $ledger) {
+            $account = $this->findAccount($data['account_id'], 'account_id');
+
+            if (! empty($data['customer_id']) && (int) $account->customer_id !== (int) $data['customer_id']) {
+                throw ValidationException::withMessages(['account_id' => 'Choose an account that belongs to this customer.']);
+            }
+
+            try {
+                $transaction = $ledger->postForCustomer(
+                    $account,
+                    $data['type'],
+                    $amount,
+                    $data['status'],
+                    $data['description'] ?? null,
+                    $request->user(),
+                );
+            } catch (LedgerException $exception) {
+                throw ValidationException::withMessages(['amount' => $exception->getMessage()]);
+            }
+
+            $label = Transaction::TYPES[$transaction->type] ?? $transaction->type;
+
+            return "{$label} of ".Money::format(abs($transaction->amount), $transaction->currency)
+                ." recorded ({$transaction->status}, ref {$transaction->reference}).";
+        });
+
+        if (($data['return'] ?? 'transactions') === 'customer_transactions' && ! empty($data['customer_id'])) {
+            return redirect()
+                ->route('admin.platform.banks.customers.transactions.index', [$tenant, $data['customer_id']])
+                ->with('success', $message);
+        }
+
+        return redirect()
+            ->route('admin.platform.banks.transactions.index', $tenant)
+            ->with('success', $message);
     }
 
     public function store(StoreTransactionRequest $request, Tenant $tenant, LedgerService $ledger): RedirectResponse

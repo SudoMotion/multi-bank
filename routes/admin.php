@@ -154,6 +154,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
                         Route::get('customers/{customer}', [CustomerController::class, 'show'])
                             ->whereNumber('customer')
                             ->name('customers.show');
+                        Route::get('customers/{customer}/transactions', [CustomerController::class, 'transactions'])
+                            ->whereNumber('customer')
+                            ->name('customers.transactions.index');
                         Route::get('customers/{customer}/edit', [CustomerController::class, 'edit'])
                             ->whereNumber('customer')
                             ->middleware('permission:customers.edit')
@@ -166,10 +169,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
                             ->whereNumber('customer')
                             ->middleware('permission:customers.edit')
                             ->name('customers.password.update');
-                        Route::post('customers/{customer}/transactions', [CustomerController::class, 'storeTransaction'])
-                            ->whereNumber('customer')
-                            ->middleware('permission:transactions.create')
-                            ->name('customers.transactions.store');
                         Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])
                             ->whereNumber('customer')
                             ->middleware('permission:customers.delete')
@@ -213,6 +212,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
                         Route::post('transactions', [TransactionController::class, 'store'])
                             ->middleware('permission:transactions.create')
                             ->name('transactions.store');
+                        Route::post('transactions/entry', [TransactionController::class, 'storeEntry'])
+                            ->middleware('permission:transactions.create')
+                            ->name('transactions.entry.store');
                     });
 
                     Route::middleware('permission:settings.view')->group(function () {
