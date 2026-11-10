@@ -4,6 +4,7 @@ import {
     DeleteAction,
     EditAction,
     PasswordAction,
+    TransactionAction,
     RemoveAction,
     ViewAction,
 } from './ActionButtons';
@@ -43,6 +44,7 @@ export {
     DeleteAction,
     EditAction,
     PasswordAction,
+    TransactionAction,
     ErrorMessage,
     FileInput,
     FormField,

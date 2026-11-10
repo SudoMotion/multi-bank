@@ -1,4 +1,4 @@
-import { Table, Td, Th, cn } from '@/Components/UI';
+import { StatusBadge, Table, Td, Th, cn } from '@/Components/UI';
 import { Link } from '@inertiajs/react';
 
 export default function TransactionsTable({ bankId, transactions, showAccount = true, empty = 'No transactions yet.' }) {
@@ -10,6 +10,7 @@ export default function TransactionsTable({ bankId, transactions, showAccount = 
                 <>
                     <Th>Date</Th>
                     <Th>Type</Th>
+                    <Th>Status</Th>
                     {showAccount && <Th>Account</Th>}
                     <Th>Description</Th>
                     <Th align="right">Amount</Th>
@@ -32,6 +33,9 @@ export default function TransactionsTable({ bankId, transactions, showAccount = 
                                 {transaction.amount.minor < 0 ? 'to' : 'from'} {transaction.related_account}
                             </p>
                         )}
+                    </Td>
+                    <Td>
+                        <StatusBadge status={transaction.status} label={transaction.status_label} />
                     </Td>
                     {showAccount && (
                         <Td>

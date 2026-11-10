@@ -14,6 +14,10 @@ const statusVariants = {
     frozen: 'info',
     suspended: 'warning',
     closed: 'neutral',
+    complete: 'success',
+    pending: 'warning',
+    failed: 'danger',
+    canceled: 'neutral',
 };
 
 export function statusVariant(status) {

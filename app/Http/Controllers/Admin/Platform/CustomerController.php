@@ -2,8 +2,14 @@
 
 namespace App\Http\Controllers\Admin\Platform;
 
+use App\Banking\LedgerException;
+use App\Banking\LedgerService;
 use App\Http\Requests\Admin\Platform\CustomerRequest;
+use App\Http\Requests\Admin\Platform\StoreCustomerTransactionRequest;
 use App\Http\Requests\Admin\Platform\UpdateCustomerPasswordRequest;
+use App\Models\Transaction;
+use App\Support\Money;
+use Illuminate\Validation\ValidationException;
 use App\Models\Account;
 use App\Models\Customer;
 use App\Models\Tenant;
@@ -24,6 +30,7 @@ class CustomerController extends BankWorkspaceController
         $customers = $this->inBank($tenant, fn () => Customer::query()
             ->search($filters['search'] ?? null)
             ->when($filters['status'] ?? null, fn ($query, string $status) => $query->where('status', $status))
+            ->with(['accounts' => fn ($query) => $query->orderBy('name')->orderBy('id')])
             ->withCount('accounts')
             ->orderBy('last_name')
             ->orderBy('first_name')
@@ -38,6 +45,12 @@ class CustomerController extends BankWorkspaceController
                 'status' => $customer->status,
                 'accounts_count' => $customer->accounts_count,
                 'created_at' => $customer->created_at?->format('M j, Y'),
+                'accounts' => $customer->accounts->map(fn (Account $account) => [
+                    'id' => $account->id,
+                    'label' => $account->label(),
+                    'status' => $account->status,
+                    'balance' => $this->money($account->balance, $account->currency),
+                ])->all(),
             ]));
 
         return $this->render($tenant, 'customers', 'Admin/Platform/Banks/Customers/Index', [
@@ -48,6 +61,8 @@ class CustomerController extends BankWorkspaceController
             ],
             'statuses' => $this->options(Customer::STATUSES),
             'can' => $this->abilities($request),
+            'transactionTypes' => $this->options(Transaction::CUSTOMER_TYPES),
+            'transactionStatuses' => $this->options(Transaction::STATUSES),
         ]);
     }
 
@@ -90,6 +105,8 @@ class CustomerController extends BankWorkspaceController
         return $this->render($tenant, 'customers', 'Admin/Platform/Banks/Customers/Show', [
             ...$props,
             'can' => $this->abilities($request),
+            'transactionTypes' => $this->options(Transaction::CUSTOMER_TYPES),
+            'transactionStatuses' => $this->options(Transaction::STATUSES),
         ]);
     }
 
@@ -139,6 +156,40 @@ class CustomerController extends BankWorkspaceController
         return redirect()
             ->route('admin.platform.banks.customers.show', [$tenant, $model->id])
             ->with('success', 'Customer updated.');
+    }
+
+    public function storeTransaction(
+        StoreCustomerTransactionRequest $request,
+        Tenant $tenant,
+        int $customer,
+        LedgerService $ledger,
+    ): RedirectResponse {
+        $data = $request->validated();
+        $amount = Money::toMinor($data['amount']);
+
+        $message = $this->inBank($tenant, function () use ($data, $amount, $request, $ledger) {
+            $account = Account::query()->where('customer_id', $customer)->findOrFail($data['account_id']);
+
+            try {
+                $transaction = $ledger->postForCustomer(
+                    $account,
+                    $data['type'],
+                    $amount,
+                    $data['status'],
+                    $data['description'] ?? null,
+                    $request->user(),
+                );
+            } catch (LedgerException $exception) {
+                throw ValidationException::withMessages(['amount' => $exception->getMessage()]);
+            }
+
+            $label = Transaction::TYPES[$transaction->type] ?? $transaction->type;
+
+            return "{$label} of ".Money::format(abs($transaction->amount), $transaction->currency)
+                ." recorded ({$transaction->status}, ref {$transaction->reference}).";
+        });
+
+        return back()->with('success', $message);
     }
 
     public function updatePassword(UpdateCustomerPasswordRequest $request, Tenant $tenant, int $customer): RedirectResponse
@@ -238,6 +289,7 @@ class CustomerController extends BankWorkspaceController
             'edit' => $user->can('customers.edit'),
             'delete' => $user->can('customers.delete'),
             'openAccount' => $user->can('accounts.create'),
+            'transact' => $user->can('transactions.create'),
         ];
     }
 }

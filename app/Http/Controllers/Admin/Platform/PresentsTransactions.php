@@ -21,6 +21,9 @@ trait PresentsTransactions
             'reference' => $transaction->reference,
             'type' => $transaction->type,
             'type_label' => Transaction::TYPES[$transaction->type] ?? $transaction->type,
+            'status' => $transaction->status ?? Transaction::STATUS_COMPLETE,
+            'status_label' => Transaction::STATUSES[$transaction->status ?? Transaction::STATUS_COMPLETE]
+                ?? ($transaction->status ?? Transaction::STATUS_COMPLETE),
             'amount' => $this->money($transaction->amount, $transaction->currency),
             'balance_after' => $this->money($transaction->balance_after, $transaction->currency),
             'description' => $transaction->description,

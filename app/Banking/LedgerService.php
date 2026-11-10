@@ -91,6 +91,70 @@ class LedgerService
      * Administrative correction. Allowed on frozen accounts, never on closed
      * ones, and can never make the balance negative.
      */
+    /**
+     * Customer-service posting: balance changes only when status is complete.
+     *
+     * @param  value-of<Transaction::CUSTOMER_TYPES>  $type
+     * @param  value-of<Transaction::STATUSES>  $status
+     */
+    public function postForCustomer(
+        Account $account,
+        string $type,
+        int $amount,
+        string $status,
+        ?string $description = null,
+        ?User $actor = null,
+    ): Transaction {
+        $this->assertAmount($amount);
+
+        $signedAmount = match ($type) {
+            Transaction::TYPE_DEPOSIT, Transaction::TYPE_REFUND => $amount,
+            Transaction::TYPE_WITHDRAWAL, Transaction::TYPE_FEE => -$amount,
+            default => throw new LedgerException('Unsupported transaction type.'),
+        };
+
+        return DB::transaction(function () use ($account, $type, $signedAmount, $amount, $status, $description, $actor) {
+            $locked = $this->lock([$account->id])->first();
+
+            if ($locked->isClosed()) {
+                throw new LedgerException('Closed accounts cannot receive transactions.');
+            }
+
+            if ($status === Transaction::STATUS_COMPLETE) {
+                if (! $locked->isActive()) {
+                    throw new LedgerException("Account {$locked->label()} is {$locked->status}.");
+                }
+
+                if ($signedAmount < 0) {
+                    $this->assertFunds($locked, $amount);
+                }
+
+                return $this->post(
+                    $locked,
+                    $type,
+                    $signedAmount,
+                    $description,
+                    $actor,
+                    null,
+                    null,
+                    Transaction::STATUS_COMPLETE,
+                );
+            }
+
+            return $this->post(
+                $locked,
+                $type,
+                $signedAmount,
+                $description,
+                $actor,
+                null,
+                null,
+                $status,
+                applyBalance: false,
+            );
+        });
+    }
+
     public function adjust(Account $account, int $signedAmount, string $description, ?User $actor = null): Transaction
     {
         $this->assertAmount(abs($signedAmount));
@@ -151,9 +215,13 @@ class LedgerService
         ?User $actor,
         ?string $reference = null,
         ?Account $related = null,
+        string $status = Transaction::STATUS_COMPLETE,
+        bool $applyBalance = true,
     ): Transaction {
-        $account->balance += $signedAmount;
-        $account->save();
+        if ($applyBalance) {
+            $account->balance += $signedAmount;
+            $account->save();
+        }
 
         $transaction = new Transaction;
         $transaction->forceFill([
@@ -162,6 +230,7 @@ class LedgerService
             'created_by' => $actor?->id,
             'reference' => $reference ?? $this->reference(),
             'type' => $type,
+            'status' => $status,
             'amount' => $signedAmount,
             'balance_after' => $account->balance,
             'currency' => $account->currency,

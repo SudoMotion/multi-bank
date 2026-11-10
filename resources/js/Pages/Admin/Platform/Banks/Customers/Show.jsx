@@ -1,4 +1,5 @@
 import ChangeCustomerPasswordDialog from '@/Components/Admin/ChangeCustomerPasswordDialog';
+import CustomerTransactionDialog from '@/Components/Admin/CustomerTransactionDialog';
 import { Button, Card, StatusBadge, Table, Td, Th } from '@/Components/UI';
 import BankWorkspaceLayout from '@/Layouts/Admin/BankWorkspaceLayout';
 import { Link, router } from '@inertiajs/react';
@@ -13,9 +14,10 @@ function Detail({ label, children }) {
     );
 }
 
-export default function Show({ workspace, customer, can }) {
+export default function Show({ workspace, customer, can, transactionTypes, transactionStatuses }) {
     const bankId = workspace.bank.id;
     const [passwordOpen, setPasswordOpen] = useState(false);
+    const [transactionOpen, setTransactionOpen] = useState(false);
 
     const destroy = () => {
         if (confirm(`Delete ${customer.name}? This cannot be undone.`)) {
@@ -46,6 +48,9 @@ export default function Show({ workspace, customer, can }) {
                                 <Button variant="secondary">Edit</Button>
                             </Link>
                         </>
+                    )}
+                    {can.transact && (
+                        <Button onClick={() => setTransactionOpen(true)}>Transaction</Button>
                     )}
                 </div>
             }
@@ -125,6 +130,13 @@ export default function Show({ workspace, customer, can }) {
                 customer={passwordOpen ? customer : null}
                 bankId={bankId}
                 onClose={() => setPasswordOpen(false)}
+            />
+            <CustomerTransactionDialog
+                customer={transactionOpen ? customer : null}
+                bankId={bankId}
+                transactionTypes={transactionTypes}
+                transactionStatuses={transactionStatuses}
+                onClose={() => setTransactionOpen(false)}
             />
         </BankWorkspaceLayout>
     );
