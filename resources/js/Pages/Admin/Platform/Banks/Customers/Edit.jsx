@@ -2,7 +2,7 @@ import CustomerForm from '@/Components/Admin/Platform/CustomerForm';
 import BankWorkspaceLayout from '@/Layouts/Admin/BankWorkspaceLayout';
 import { useForm } from '@inertiajs/react';
 
-export default function Edit({ workspace, customer, statuses }) {
+export default function Edit({ workspace, customer, statuses, accountOptions = [] }) {
     const bankId = workspace.bank.id;
     const showHref = route('admin.platform.banks.customers.show', [bankId, customer.id]);
 
@@ -15,6 +15,7 @@ export default function Edit({ workspace, customer, statuses }) {
         date_of_birth: customer.date_of_birth ?? '',
         address: customer.address ?? '',
         status: customer.status,
+        account_ids: customer.account_ids ?? [],
     });
 
     const submit = (e) => {
@@ -36,6 +37,7 @@ export default function Edit({ workspace, customer, statuses }) {
                 cancelHref={showHref}
                 submitLabel="Save customer"
                 accountNumberEditable
+                accountOptions={accountOptions}
             />
         </BankWorkspaceLayout>
     );

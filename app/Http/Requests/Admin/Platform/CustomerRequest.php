@@ -2,11 +2,13 @@
 
 namespace App\Http\Requests\Admin\Platform;
 
+use App\Models\Account;
 use App\Models\Customer;
 use App\Models\Tenant;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 
 class CustomerRequest extends FormRequest
 {
@@ -61,9 +63,44 @@ class CustomerRequest extends FormRequest
                 'digits:16',
                 Rule::unique('customers', 'customer_number')->ignore($customerId),
             ];
+            $rules['account_ids'] = ['nullable', 'array'];
+            $rules['account_ids.*'] = [
+                'integer',
+                Rule::exists('accounts', 'id')->where('tenant_id', $tenant->id),
+            ];
         }
 
         return $rules;
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            $customerId = $this->route('customer');
+
+            if ($customerId === null || ! $this->has('account_ids')) {
+                return;
+            }
+
+            $ids = collect($this->input('account_ids', []))
+                ->map(fn ($id) => (int) $id)
+                ->unique()
+                ->values();
+
+            if ($ids->isEmpty()) {
+                return;
+            }
+
+            $taken = Account::query()
+                ->whereIn('id', $ids)
+                ->whereNotNull('customer_id')
+                ->where('customer_id', '!=', $customerId)
+                ->exists();
+
+            if ($taken) {
+                $validator->errors()->add('account_ids', 'One or more accounts are already assigned to another customer.');
+            }
+        });
     }
 
     /**

@@ -1,5 +1,5 @@
 import { AdminForm, AdminFormGrid } from '@/Components/Admin/AdminForm';
-import { Button, Card, Input, Select, Textarea } from '@/Components/UI';
+import { Alert, Button, Card, Checkbox, Input, Select, Textarea } from '@/Components/UI';
 import { Link } from '@inertiajs/react';
 
 export default function CustomerForm({
@@ -9,8 +9,17 @@ export default function CustomerForm({
     cancelHref,
     submitLabel,
     accountNumberEditable = false,
+    accountOptions = [],
 }) {
     const { data, setData, processing, errors } = form;
+
+    const toggleAccount = (accountId, checked) => {
+        const ids = data.account_ids ?? [];
+        setData(
+            'account_ids',
+            checked ? [...ids, accountId] : ids.filter((id) => id !== accountId),
+        );
+    };
 
     return (
         <AdminForm onSubmit={onSubmit} className="space-y-4">
@@ -96,6 +105,39 @@ export default function CustomerForm({
                     />
                 </AdminFormGrid>
             </Card>
+
+            {accountOptions.length > 0 && (
+                <Card
+                    title="Assign accounts"
+                    description="Link deposit products from this bank to this customer."
+                >
+                    <div className="flex gap-3">
+                        {accountOptions.map((option) => (
+                            <Checkbox
+                                key={option.id}
+                                id={`account_${option.id}`}
+                                label={`${option.label} (${option.status})`}
+                                checked={(data.account_ids ?? []).includes(option.id)}
+                                onChange={(e) => toggleAccount(option.id, e.target.checked)}
+                            />
+                        ))}
+                    </div>
+                    {errors.account_ids && (
+                        <Alert variant="error" className="mt-4">
+                            {errors.account_ids}
+                        </Alert>
+                    )}
+                </Card>
+            )}
+
+            {accountNumberEditable && accountOptions.length === 0 && (
+                <Card title="Assign accounts">
+                    <p className="text-sm text-neutral-600">
+                        No unassigned accounts are available. Create an account under Accounts first, then return
+                        here to assign it.
+                    </p>
+                </Card>
+            )}
 
             <div className="flex justify-end gap-3">
                 <Link href={cancelHref}>

@@ -94,9 +94,30 @@ class CustomerController extends BankWorkspaceController
 
     public function edit(Tenant $tenant, int $customer): Response
     {
-        $props = $this->inBank($tenant, fn () => [
-            'customer' => $this->present(Customer::query()->findOrFail($customer)),
-        ]);
+        $props = $this->inBank($tenant, function () use ($customer) {
+            $model = Customer::query()->with('accounts')->findOrFail($customer);
+
+            return [
+                'customer' => [
+                    ...$this->present($model),
+                    'account_ids' => $model->accounts->pluck('id')->all(),
+                ],
+                'accountOptions' => Account::query()
+                    ->where(function ($query) use ($model) {
+                        $query->whereNull('customer_id')
+                            ->orWhere('customer_id', $model->id);
+                    })
+                    ->orderBy('name')
+                    ->orderBy('id')
+                    ->get()
+                    ->map(fn (Account $account) => [
+                        'id' => $account->id,
+                        'label' => $account->label(),
+                        'status' => $account->status,
+                    ])
+                    ->all(),
+            ];
+        });
 
         return $this->render($tenant, 'customers', 'Admin/Platform/Banks/Customers/Edit', [
             ...$props,
@@ -109,6 +130,7 @@ class CustomerController extends BankWorkspaceController
         $model = $this->inBank($tenant, function () use ($request, $customer) {
             $model = Customer::query()->findOrFail($customer);
             $model->update($request->customerAttributes());
+            $this->syncCustomerAccounts($model, $request->validated('account_ids', []));
 
             return $model;
         });
@@ -139,6 +161,36 @@ class CustomerController extends BankWorkspaceController
         return redirect()
             ->route('admin.platform.banks.customers.index', $tenant)
             ->with('success', $result['success']);
+    }
+
+    /**
+     * @param  list<int|string|null>  $accountIds
+     */
+    private function syncCustomerAccounts(Customer $customer, array $accountIds): void
+    {
+        $accountIds = collect($accountIds)
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        Account::query()
+            ->where('customer_id', $customer->id)
+            ->when($accountIds !== [], fn ($query) => $query->whereNotIn('id', $accountIds))
+            ->update(['customer_id' => null]);
+
+        if ($accountIds === []) {
+            return;
+        }
+
+        Account::query()
+            ->whereIn('id', $accountIds)
+            ->where(function ($query) use ($customer) {
+                $query->whereNull('customer_id')
+                    ->orWhere('customer_id', $customer->id);
+            })
+            ->update(['customer_id' => $customer->id]);
     }
 
     /**
