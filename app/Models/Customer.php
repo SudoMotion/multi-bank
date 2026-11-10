@@ -3,13 +3,16 @@
 namespace App\Models;
 
 use App\Tenancy\Concerns\BelongsToTenant;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class Customer extends Model
+#[Hidden(['password', 'remember_token'])]
+class Customer extends Authenticatable
 {
-    use BelongsToTenant;
+    use BelongsToTenant, Notifiable;
 
     public const STATUS_ACTIVE = 'active';
 
@@ -27,6 +30,7 @@ class Customer extends Model
         'first_name',
         'last_name',
         'email',
+        'password',
         'phone',
         'date_of_birth',
         'address',
@@ -40,7 +44,13 @@ class Customer extends Model
     {
         return [
             'date_of_birth' => 'date',
+            'password' => 'hashed',
         ];
+    }
+
+    public function canAuthenticate(): bool
+    {
+        return $this->isActive() && filled($this->password);
     }
 
     protected static function booted(): void

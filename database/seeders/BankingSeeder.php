@@ -31,6 +31,8 @@ class BankingSeeder extends Seeder
         Tenant::query()->orderBy('id')->each(function (Tenant $tenant) use ($tenancy, $ledger) {
             $tenancy->run($tenant, function () use ($tenant, $ledger) {
                 if (Customer::query()->exists()) {
+                    $this->ensureDemoPasswords();
+
                     return;
                 }
 
@@ -42,6 +44,7 @@ class BankingSeeder extends Seeder
                         'last_name' => $last,
                         'email' => strtolower("{$first}.{$index}@{$tenant->slug}.test"),
                         'phone' => '+1 555 01'.str_pad((string) ($tenant->id * 10 + $index), 2, '0', STR_PAD_LEFT),
+                        'password' => '123456789',
                         'status' => Customer::STATUS_ACTIVE,
                     ]);
 
@@ -68,5 +71,14 @@ class BankingSeeder extends Seeder
                 }
             });
         });
+    }
+
+    private function ensureDemoPasswords(): void
+    {
+        Customer::query()
+            ->whereNull('password')
+            ->each(function (Customer $customer) {
+                $customer->forceFill(['password' => '123456789'])->save();
+            });
     }
 }

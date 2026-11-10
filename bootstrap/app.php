@@ -1,10 +1,22 @@
 <?php
 
+use App\Http\Middleware\EnsureCentralContext;
+use App\Http\Middleware\EnsureCustomerBelongsToTenant;
+use App\Http\Middleware\EnsureTenantHost;
+use App\Http\Middleware\EnsureUserBelongsToTenant;
+use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\IdentifyTenant;
+use App\Tenancy\TenantContext;
+use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Middleware\RoleMiddleware;
+use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,25 +26,59 @@ return Application::configure(basePath: dirname(__DIR__))
         then: function () {
             Route::middleware('web')
                 ->group(base_path('routes/admin.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/customer.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->redirectGuestsTo('/admin/login');
-        $middleware->redirectUsersTo('/admin/dashboard');
+        $middleware->redirectGuestsTo(function (Request $request) {
+            if ($request->is('admin', 'admin/*')) {
+                return '/admin/login';
+            }
+
+            if (app(TenantContext::class)->check()) {
+                return '/login';
+            }
+
+            return '/admin/login';
+        });
+
+        $middleware->redirectUsersTo(function (Request $request) {
+            if ($request->is('admin', 'admin/*')) {
+                return '/admin/dashboard';
+            }
+
+            return '/dashboard';
+        });
+
+        Authenticate::redirectUsing(function (Request $request) {
+            if ($request->is('admin', 'admin/*')) {
+                return route('admin.login');
+            }
+
+            if (app(TenantContext::class)->check()) {
+                return route('customer.login');
+            }
+
+            return route('admin.login');
+        });
 
         $middleware->web(prepend: [
-            \App\Http\Middleware\IdentifyTenant::class,
+            IdentifyTenant::class,
         ], append: [
-            \App\Http\Middleware\EnsureUserBelongsToTenant::class,
-            \App\Http\Middleware\HandleInertiaRequests::class,
-            \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
+            EnsureUserBelongsToTenant::class,
+            EnsureCustomerBelongsToTenant::class,
+            HandleInertiaRequests::class,
+            AddLinkHeadersForPreloadedAssets::class,
         ]);
 
         $middleware->alias([
-            'central' => \App\Http\Middleware\EnsureCentralContext::class,
-            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
-            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'tenant' => EnsureTenantHost::class,
+            'central' => EnsureCentralContext::class,
+            'role' => RoleMiddleware::class,
+            'permission' => PermissionMiddleware::class,
+            'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

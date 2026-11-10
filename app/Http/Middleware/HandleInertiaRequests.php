@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use App\Support\GlobalSettings;
 use App\Support\Permissions;
 use App\Support\SiteData;
@@ -33,7 +34,9 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        $user = $request->user();
+        $user = $request->user('web');
+        $user = $user instanceof User ? $user : null;
+        $customer = $request->user('customer');
         $tenant = app(TenantContext::class)->get();
         $permissions = $user ? $user->getAllPermissions()->pluck('name') : collect();
 
@@ -45,7 +48,13 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'auth' => [
                 'user' => $user,
-                'roles' => $user ? $user->getRoleNames()->values()->all() : [],
+                'customer' => $customer ? [
+                    'id' => $customer->id,
+                    'name' => $customer->fullName(),
+                    'email' => $customer->email,
+                    'customer_number' => $customer->customer_number,
+                ] : null,
+                'roles' => $user?->getRoleNames()->values()->all() ?? [],
                 'permissions' => $permissions->values()->all(),
                 'isSuperAdmin' => $user?->isSuperAdmin() ?? false,
             ],

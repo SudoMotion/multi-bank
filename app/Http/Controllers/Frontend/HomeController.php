@@ -38,7 +38,7 @@ class HomeController extends Controller
                 'name' => $tenant->name,
                 'tagline' => $tenant->tagline,
                 'logo' => $tenant->logoUrl(),
-                'sign_in_url' => $tenant->url(),
+                'sign_in_url' => $tenant->setting('online_banking_url') ?: $tenant->url('login'),
             ])
             ->values()
             ->all();
