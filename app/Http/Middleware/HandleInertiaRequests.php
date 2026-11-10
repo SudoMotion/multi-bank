@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Money;
+use App\Models\Customer;
 use App\Models\User;
 use App\Support\GlobalSettings;
 use App\Support\Permissions;
@@ -37,6 +39,7 @@ class HandleInertiaRequests extends Middleware
         $user = $request->user('web');
         $user = $user instanceof User ? $user : null;
         $customer = $request->user('customer');
+        $customer = $customer instanceof Customer ? $customer : null;
         $tenant = app(TenantContext::class)->get();
         $permissions = $user ? $user->getAllPermissions()->pluck('name') : collect();
 
@@ -51,6 +54,8 @@ class HandleInertiaRequests extends Middleware
                 'customer' => $customer ? [
                     'id' => $customer->id,
                     'name' => $customer->fullName(),
+                    'first_name' => $customer->first_name,
+                    'last_name' => $customer->last_name,
                     'email' => $customer->email,
                     'account_number' => $customer->accountNumber(),
                 ] : null,
@@ -68,6 +73,26 @@ class HandleInertiaRequests extends Middleware
             'tenancy' => [
                 'isCentral' => $tenant === null,
             ],
+            'customerSummary' => fn () => self::customerSummary($customer),
+        ];
+    }
+
+    /**
+     * @return array{name: string, total_balance: string}|null
+     */
+    private static function customerSummary(?Customer $customer): ?array
+    {
+        if (! $customer) {
+            return null;
+        }
+
+        $total = $customer->accounts()->get()->sum(
+            fn ($account) => (float) Money::toDecimal($account->balance)
+        );
+
+        return [
+            'name' => $customer->fullName(),
+            'total_balance' => number_format($total, 2, '.', ''),
         ];
     }
 }

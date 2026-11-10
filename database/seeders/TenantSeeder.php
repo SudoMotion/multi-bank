@@ -27,7 +27,7 @@ class TenantSeeder extends Seeder
             ['name' => 'Scotiabank', 'slug' => 'scotiabank', 'tagline' => "You're richer than you think.", 'logo' => 'scotiabank.svg', 'theme' => 'default', 'primary' => '#EC111A', 'secondary' => '#1F2937'],
             ['name' => 'TD Canada Trust', 'slug' => 'td', 'tagline' => 'Bank anywhere, anytime.', 'logo' => 'td.svg', 'theme' => 'default', 'primary' => '#008A00', 'secondary' => '#0B3B0B'],
             ['name' => 'BMO', 'slug' => 'bmo', 'tagline' => "We're here to help.", 'logo' => 'bmo.svg', 'theme' => 'default', 'primary' => '#0079C1', 'secondary' => '#0A2240'],
-            ['name' => 'RBC Royal Bank', 'slug' => 'rbc', 'tagline' => 'Always with you.', 'logo' => 'rbc.svg', 'theme' => 'heritage', 'primary' => '#0051A5', 'secondary' => '#002144'],
+            ['name' => 'RBC Royal Bank', 'slug' => 'rbc', 'tagline' => 'Always with you.', 'logo' => 'rbc.svg', 'theme' => 'rbc', 'primary' => '#0051A5', 'secondary' => '#002144'],
             ['name' => 'CIBC', 'slug' => 'cibc', 'tagline' => 'Banking that fits your life.', 'logo' => 'cibc.svg', 'theme' => 'default', 'primary' => '#C41F3E', 'secondary' => '#3B0A14'],
             ['name' => 'Credit Union', 'slug' => 'credit-union', 'tagline' => 'Banking with a personal touch.', 'logo' => 'credit-union.svg', 'theme' => 'heritage', 'primary' => '#2E7D32', 'secondary' => '#1B3A1D'],
         ];

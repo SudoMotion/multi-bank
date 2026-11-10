@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Customer\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\LoginRequest;
+use App\Tenancy\ThemeRegistry;
+use App\Tenancy\TenantContext;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,7 +27,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('customer.dashboard', absolute: false));
+        $tenant = app(TenantContext::class)->get();
+        $home = $tenant && app(ThemeRegistry::class)->resolve($tenant->theme) === 'rbc'
+            ? route('customer.accounts', absolute: false)
+            : route('customer.dashboard', absolute: false);
+
+        return redirect()->intended($home);
     }
 
     public function destroy(Request $request): RedirectResponse

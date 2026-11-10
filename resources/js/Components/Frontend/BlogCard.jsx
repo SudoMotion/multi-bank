@@ -1,0 +1,25 @@
+import { Link } from '@inertiajs/react';
+
+export default function BlogCard({ blog }) {
+    return (
+        <Link
+            href={route('blogs.show', blog.slug)}
+            className="group flex flex-col overflow-hidden border border-neutral-300 bg-white transition-shadow hover:shadow-md"
+        >
+            <div className="overflow-hidden bg-neutral-100">
+                {blog.image_url ? (
+                    <img
+                        src={blog.image_url}
+                        alt=""
+                        className="aspect-[2.45/1] w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                ) : (
+                    <div className="aspect-[2.45/1] w-full" />
+                )}
+            </div>
+            <h3 className="px-5 pb-6 pt-4 text-lg font-medium leading-snug text-neutral-900 group-hover:underline sm:text-xl">
+                {blog.title}
+            </h3>
+        </Link>
+    );
+}

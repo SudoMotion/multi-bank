@@ -1,8 +1,9 @@
 import Container from '@/Components/Frontend/Container';
 import SiteFavicon from '@/Components/SiteFavicon';
+import { themeable } from '@/tenancy/theme';
 import { Link, useForm, usePage } from '@inertiajs/react';
 
-export default function CustomerLayout({ title, children }) {
+function DefaultCustomerLayout({ title, children }) {
     const { site, auth } = usePage().props;
     const logout = useForm({});
 
@@ -51,3 +52,5 @@ export default function CustomerLayout({ title, children }) {
         </div>
     );
 }
+
+export default themeable('Layouts/Customer/CustomerLayout', DefaultCustomerLayout);

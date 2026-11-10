@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Transaction;
 use App\Support\Money;
+use App\Tenancy\ThemeRegistry;
+use App\Tenancy\TenantContext;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -13,8 +16,14 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request): Response|RedirectResponse
     {
+        $tenant = app(TenantContext::class)->get();
+
+        if ($tenant && app(ThemeRegistry::class)->resolve($tenant->theme) === 'rbc') {
+            return redirect()->route('customer.accounts');
+        }
+
         /** @var Customer $customer */
         $customer = Auth::guard('customer')->user();
 
