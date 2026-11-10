@@ -33,22 +33,12 @@ class AppServiceProvider extends ServiceProvider
     {
         Vite::prefetch(concurrency: 3);
 
-        $assetOrigin = rtrim((string) config('app.url'), '/');
-
-        URL::useAssetOrigin($assetOrigin);
-
         URL::formatPathUsing(function (string $path) {
             return app(TenantPathFormatter::class)->format($path);
         });
 
-        Vite::createAssetPathsUsing(function (string $path, ?bool $secure = null) use ($assetOrigin) {
-            $root = $assetOrigin;
-
-            if ($secure) {
-                $root = preg_replace('#^http:#', 'https:', $root) ?? $root;
-            }
-
-            return $root.'/'.ltrim($path, '/');
+        Vite::createAssetPathsUsing(function (string $path, ?bool $secure = null) {
+            return asset($path, $secure ?? request()->isSecure());
         });
 
         Gate::before(function (User $user, string $ability) {

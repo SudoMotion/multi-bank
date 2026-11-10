@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Middleware\ConfigureSecureUrls;
 use App\Http\Middleware\EnsureCentralContext;
 use App\Http\Middleware\EnsureCustomerBelongsToTenant;
 use App\Http\Middleware\EnsureTenantHost;
 use App\Http\Middleware\EnsureUserBelongsToTenant;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\IdentifyTenant;
+use App\Http\Middleware\TrustProxies;
 use App\Tenancy\TenantContext;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Foundation\Application;
@@ -65,6 +67,8 @@ return Application::configure(basePath: dirname(__DIR__))
         });
 
         $middleware->prepend([
+            TrustProxies::class,
+            ConfigureSecureUrls::class,
             IdentifyTenant::class,
         ]);
 
