@@ -167,7 +167,7 @@ class CustomerController extends BankWorkspaceController
         $data = $request->validated();
         $amount = Money::toMinor($data['amount']);
 
-        $message = $this->inBank($tenant, function () use ($data, $amount, $request, $ledger) {
+        $message = $this->inBank($tenant, function () use ($data, $amount, $request, $ledger, $customer) {
             $account = Account::query()->where('customer_id', $customer)->findOrFail($data['account_id']);
 
             try {
