@@ -3,7 +3,6 @@
 namespace App\Tenancy;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\URL;
 
 /**
  * Applies path-based tenant routing: scoped session cookies, URL generation, and
@@ -14,9 +13,6 @@ class PathTenantBootstrap
     public function apply(Request $request, string $slug): void
     {
         config(['session.path' => '/'.$slug]);
-
-        $root = rtrim((string) config('app.url'), '/').'/'.$slug;
-        URL::forceRootUrl($root);
 
         $this->stripSlugPrefix($request, $slug);
     }

@@ -5,9 +5,11 @@ namespace App\Providers;
 use App\Models\User;
 use App\Support\GlobalSettings;
 use App\Tenancy\TenantContext;
+use App\Tenancy\TenantPathFormatter;
 use App\Tenancy\ThemeRegistry;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->scoped(TenantContext::class);
         $this->app->scoped(GlobalSettings::class);
         $this->app->singleton(ThemeRegistry::class);
+        $this->app->singleton(TenantPathFormatter::class);
     }
 
     /**
@@ -29,6 +32,24 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
+        $assetOrigin = rtrim((string) config('app.url'), '/');
+
+        URL::useAssetOrigin($assetOrigin);
+
+        URL::formatPathUsing(function (string $path) {
+            return app(TenantPathFormatter::class)->format($path);
+        });
+
+        Vite::createAssetPathsUsing(function (string $path, ?bool $secure = null) use ($assetOrigin) {
+            $root = $assetOrigin;
+
+            if ($secure) {
+                $root = preg_replace('#^http:#', 'https:', $root) ?? $root;
+            }
+
+            return $root.'/'.ltrim($path, '/');
+        });
 
         Gate::before(function (User $user, string $ability) {
             return $user->isSuperAdmin() ? true : null;
