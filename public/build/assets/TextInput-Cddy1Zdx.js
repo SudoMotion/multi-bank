@@ -1,1 +1,0 @@
-import{h as e}from"./UI-Cn25brf-.js";var t=e;export{t};
