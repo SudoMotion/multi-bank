@@ -17,9 +17,15 @@ class CustomerRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->merge([
+        $payload = [
             'email' => filled($this->input('email')) ? Str::lower(trim($this->input('email'))) : null,
-        ]);
+        ];
+
+        if ($this->has('account_number')) {
+            $payload['account_number'] = preg_replace('/\D/', '', (string) $this->input('account_number'));
+        }
+
+        $this->merge($payload);
     }
 
     /**
@@ -30,7 +36,7 @@ class CustomerRequest extends FormRequest
         /** @var Tenant $tenant */
         $tenant = $this->route('tenant');
 
-        return [
+        $rules = [
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
             'email' => [
@@ -46,5 +52,39 @@ class CustomerRequest extends FormRequest
             'address' => ['nullable', 'string', 'max:1000'],
             'status' => ['required', Rule::in(array_keys(Customer::STATUSES))],
         ];
+
+        $customerId = $this->route('customer');
+
+        if ($customerId !== null) {
+            $rules['account_number'] = [
+                'required',
+                'digits:16',
+                Rule::unique('customers', 'customer_number')->ignore($customerId),
+            ];
+        }
+
+        return $rules;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function customerAttributes(): array
+    {
+        $data = $this->safe()->only([
+            'first_name',
+            'last_name',
+            'email',
+            'phone',
+            'date_of_birth',
+            'address',
+            'status',
+        ]);
+
+        if ($this->filled('account_number')) {
+            $data['customer_number'] = $this->validated('account_number');
+        }
+
+        return $data;
     }
 }

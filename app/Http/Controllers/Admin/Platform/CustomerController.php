@@ -59,7 +59,7 @@ class CustomerController extends BankWorkspaceController
 
     public function store(CustomerRequest $request, Tenant $tenant): RedirectResponse
     {
-        $customer = $this->inBank($tenant, fn () => Customer::create($request->validated()));
+        $customer = $this->inBank($tenant, fn () => Customer::create($request->customerAttributes()));
 
         return redirect()
             ->route('admin.platform.banks.customers.show', [$tenant, $customer->id])
@@ -108,7 +108,7 @@ class CustomerController extends BankWorkspaceController
     {
         $model = $this->inBank($tenant, function () use ($request, $customer) {
             $model = Customer::query()->findOrFail($customer);
-            $model->update($request->validated());
+            $model->update($request->customerAttributes());
 
             return $model;
         });

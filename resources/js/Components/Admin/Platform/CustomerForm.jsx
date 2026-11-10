@@ -2,13 +2,41 @@ import { AdminForm, AdminFormGrid } from '@/Components/Admin/AdminForm';
 import { Button, Card, Input, Select, Textarea } from '@/Components/UI';
 import { Link } from '@inertiajs/react';
 
-export default function CustomerForm({ form, onSubmit, statuses, cancelHref, submitLabel }) {
+export default function CustomerForm({
+    form,
+    onSubmit,
+    statuses,
+    cancelHref,
+    submitLabel,
+    accountNumberEditable = false,
+}) {
     const { data, setData, processing, errors } = form;
 
     return (
         <AdminForm onSubmit={onSubmit} className="space-y-4">
             <Card title="Customer Details">
                 <AdminFormGrid>
+                    {accountNumberEditable && (
+                        <Input
+                            id="account_number"
+                            label="Account number"
+                            required
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            maxLength={16}
+                            wrapperClassName="sm:col-span-2 lg:col-span-3 xl:col-span-4"
+                            value={data.account_number}
+                            error={errors.account_number}
+                            onChange={(e) =>
+                                setData('account_number', e.target.value.replace(/\D/g, '').slice(0, 16))
+                            }
+                        />
+                    )}
+                    {accountNumberEditable && !errors.account_number && (
+                        <p className="text-xs text-neutral-500 sm:col-span-2 lg:col-span-3 xl:col-span-4">
+                            16 digits, unique across all banks.
+                        </p>
+                    )}
                     <Input
                         id="first_name"
                         label="First Name"

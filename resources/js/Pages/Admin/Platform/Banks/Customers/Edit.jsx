@@ -7,6 +7,7 @@ export default function Edit({ workspace, customer, statuses }) {
     const showHref = route('admin.platform.banks.customers.show', [bankId, customer.id]);
 
     const form = useForm({
+        account_number: customer.account_number ?? '',
         first_name: customer.first_name,
         last_name: customer.last_name,
         email: customer.email ?? '',
@@ -34,6 +35,7 @@ export default function Edit({ workspace, customer, statuses }) {
                 statuses={statuses}
                 cancelHref={showHref}
                 submitLabel="Save customer"
+                accountNumberEditable
             />
         </BankWorkspaceLayout>
     );
