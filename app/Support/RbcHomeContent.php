@@ -56,7 +56,7 @@ class RbcHomeContent
     /**
      * @return list<array<string, mixed>>
      */
-    private static function blogs(): array
+    public static function blogs(): array
     {
         return [
             [
