@@ -7,9 +7,18 @@ export default function Index({ customer, accounts, transactions }) {
         <CustomerLayout title={`Welcome, ${customer.name}`}>
             <Head title="Dashboard" />
 
-            <p className="mb-8 text-sm text-neutral-600">
-                Client number <span className="font-mono font-medium">{customer.customer_number}</span>
-            </p>
+            {accounts.length > 0 && (
+                <div className="mb-8 text-sm text-neutral-600">
+                    <p className="font-medium text-neutral-800">
+                        {accounts.length === 1 ? 'Account number' : 'Account numbers'}
+                    </p>
+                    <ul className="mt-1 space-y-0.5 font-mono text-neutral-900">
+                        {accounts.map((account) => (
+                            <li key={account.id}>{account.account_number}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
 
             <section className="mb-10">
                 <h2 className="mb-4 text-lg font-semibold text-neutral-900">Your accounts</h2>
@@ -23,7 +32,8 @@ export default function Index({ customer, accounts, transactions }) {
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {accounts.map((account) => (
                             <Card key={account.id} title={account.label}>
-                                <p className="text-2xl font-semibold text-neutral-900">{account.balance_formatted}</p>
+                                <p className="font-mono text-xs text-neutral-500">{account.account_number}</p>
+                                <p className="mt-2 text-2xl font-semibold text-neutral-900">{account.balance_formatted}</p>
                                 <p className="mt-2 text-xs uppercase tracking-wide text-neutral-500">
                                     {account.status} · {account.currency}
                                 </p>

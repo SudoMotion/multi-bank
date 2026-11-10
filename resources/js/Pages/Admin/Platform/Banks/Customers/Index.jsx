@@ -1,8 +1,10 @@
+import DeleteCustomerDialog from '@/Components/Admin/DeleteCustomerDialog';
 import FilterBar from '@/Components/Admin/FilterBar';
 import {
     ActionButtonGroup,
     Button,
     Card,
+    DeleteAction,
     EditAction,
     Pagination,
     StatusBadge,
@@ -13,9 +15,11 @@ import {
 } from '@/Components/UI';
 import BankWorkspaceLayout from '@/Layouts/Admin/BankWorkspaceLayout';
 import { Link } from '@inertiajs/react';
+import { useState } from 'react';
 
 export default function Index({ workspace, customers, filters, statuses, can }) {
     const bankId = workspace.bank.id;
+    const [deleting, setDeleting] = useState(null);
 
     return (
         <BankWorkspaceLayout
@@ -84,6 +88,16 @@ export default function Index({ workspace, customers, filters, statuses, can }) 
                                             href={route('admin.platform.banks.customers.edit', [bankId, customer.id])}
                                         />
                                     )}
+                                    {can.delete && (
+                                        <DeleteAction
+                                            title={
+                                                customer.accounts_count > 0
+                                                    ? 'Remove all accounts before deleting'
+                                                    : 'Delete customer'
+                                            }
+                                            onClick={() => setDeleting(customer)}
+                                        />
+                                    )}
                                 </ActionButtonGroup>
                             </Td>
                         </tr>
@@ -92,6 +106,12 @@ export default function Index({ workspace, customers, filters, statuses, can }) 
 
                 <Pagination paginator={customers} />
             </Card>
+
+            <DeleteCustomerDialog
+                customer={deleting}
+                bankId={bankId}
+                onClose={() => setDeleting(null)}
+            />
         </BankWorkspaceLayout>
     );
 }
