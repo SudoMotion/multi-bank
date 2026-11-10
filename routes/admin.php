@@ -162,6 +162,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
                             ->whereNumber('customer')
                             ->middleware('permission:customers.edit')
                             ->name('customers.update');
+                        Route::put('customers/{customer}/password', [CustomerController::class, 'updatePassword'])
+                            ->whereNumber('customer')
+                            ->middleware('permission:customers.edit')
+                            ->name('customers.password.update');
                         Route::delete('customers/{customer}', [CustomerController::class, 'destroy'])
                             ->whereNumber('customer')
                             ->middleware('permission:customers.delete')

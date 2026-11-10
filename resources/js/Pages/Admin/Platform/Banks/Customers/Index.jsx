@@ -1,3 +1,4 @@
+import ChangeCustomerPasswordDialog from '@/Components/Admin/ChangeCustomerPasswordDialog';
 import DeleteCustomerDialog from '@/Components/Admin/DeleteCustomerDialog';
 import FilterBar from '@/Components/Admin/FilterBar';
 import {
@@ -6,6 +7,7 @@ import {
     Card,
     DeleteAction,
     EditAction,
+    PasswordAction,
     Pagination,
     StatusBadge,
     Table,
@@ -20,6 +22,7 @@ import { useState } from 'react';
 export default function Index({ workspace, customers, filters, statuses, can }) {
     const bankId = workspace.bank.id;
     const [deleting, setDeleting] = useState(null);
+    const [passwordCustomer, setPasswordCustomer] = useState(null);
 
     return (
         <BankWorkspaceLayout
@@ -84,9 +87,18 @@ export default function Index({ workspace, customers, filters, statuses, can }) 
                                         href={route('admin.platform.banks.customers.show', [bankId, customer.id])}
                                     />
                                     {can.edit && (
-                                        <EditAction
-                                            href={route('admin.platform.banks.customers.edit', [bankId, customer.id])}
-                                        />
+                                        <>
+                                            <EditAction
+                                                href={route('admin.platform.banks.customers.edit', [
+                                                    bankId,
+                                                    customer.id,
+                                                ])}
+                                            />
+                                            <PasswordAction
+                                                title="Change password"
+                                                onClick={() => setPasswordCustomer(customer)}
+                                            />
+                                        </>
                                     )}
                                     {can.delete && (
                                         <DeleteAction
@@ -111,6 +123,12 @@ export default function Index({ workspace, customers, filters, statuses, can }) 
                 customer={deleting}
                 bankId={bankId}
                 onClose={() => setDeleting(null)}
+            />
+
+            <ChangeCustomerPasswordDialog
+                customer={passwordCustomer}
+                bankId={bankId}
+                onClose={() => setPasswordCustomer(null)}
             />
         </BankWorkspaceLayout>
     );

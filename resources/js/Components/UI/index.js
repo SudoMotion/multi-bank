@@ -3,6 +3,7 @@ import {
     AddAction,
     DeleteAction,
     EditAction,
+    PasswordAction,
     RemoveAction,
     ViewAction,
 } from './ActionButtons';
@@ -41,6 +42,7 @@ export {
     ColorInput,
     DeleteAction,
     EditAction,
+    PasswordAction,
     ErrorMessage,
     FileInput,
     FormField,

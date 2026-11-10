@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Platform;
 
 use App\Http\Requests\Admin\Platform\CustomerRequest;
+use App\Http\Requests\Admin\Platform\UpdateCustomerPasswordRequest;
 use App\Models\Account;
 use App\Models\Customer;
 use App\Models\Tenant;
@@ -138,6 +139,18 @@ class CustomerController extends BankWorkspaceController
         return redirect()
             ->route('admin.platform.banks.customers.show', [$tenant, $model->id])
             ->with('success', 'Customer updated.');
+    }
+
+    public function updatePassword(UpdateCustomerPasswordRequest $request, Tenant $tenant, int $customer): RedirectResponse
+    {
+        $name = $this->inBank($tenant, function () use ($request, $customer) {
+            $model = Customer::query()->findOrFail($customer);
+            $model->forceFill(['password' => $request->validated('password')])->save();
+
+            return $model->fullName();
+        });
+
+        return back()->with('success', "Password updated for {$name}.");
     }
 
     public function destroy(Tenant $tenant, int $customer): RedirectResponse
