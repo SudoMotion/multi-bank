@@ -58,9 +58,9 @@ class TenantSeeder extends Seeder
                 'description' => "{$tenant->name} has served Canadians for generations, offering everyday banking, borrowing and investing with the security of CDIC deposit protection.",
                 'status' => 'active',
             ]);
-        }
 
-        $this->seedDemoBankAdmin();
+            $this->seedDemoBankAdmin($tenant, $bank['name']);
+        }
     }
 
     private function seedLogo(Tenant $tenant, string $file): void
@@ -91,19 +91,18 @@ class TenantSeeder extends Seeder
         (new $modelClass)->forceFill(['tenant_id' => $tenant->id, ...$attributes])->save();
     }
 
-    private function seedDemoBankAdmin(): void
+    private function seedDemoBankAdmin(Tenant $tenant, string $bankName): void
     {
-        $tenant = Tenant::query()->where('slug', 'scotiabank')->first();
-        $email = 'admin@scotiabank.test';
+        $email = "admin@{$tenant->slug}.test";
 
-        if (! $tenant || User::acrossTenants()->where('email', $email)->exists()) {
+        if (User::acrossTenants()->where('email', $email)->exists()) {
             return;
         }
 
         $user = new User;
         $user->forceFill([
             'tenant_id' => $tenant->id,
-            'name' => 'Scotiabank Admin',
+            'name' => "{$bankName} Admin",
             'email' => $email,
             'password' => '123456789',
             'email_verified_at' => now(),
