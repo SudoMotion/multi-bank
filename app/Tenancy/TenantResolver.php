@@ -34,6 +34,29 @@ class TenantResolver
         return Tenant::query()->where('domain', $host)->first();
     }
 
+    public function isSubdomainOfBaseDomain(string $host, Tenant $tenant): bool
+    {
+        $host = Str::lower($host);
+        $expected = Str::lower($tenant->slug.'.'.(string) config('tenancy.base_domain'));
+
+        return $host === $expected;
+    }
+
+    public function isReservedPathPrefix(string $segment): bool
+    {
+        return in_array(Str::lower($segment), $this->reservedPathPrefixes(), true);
+    }
+
+    /**
+     * First URL segments on the central host that are never tenant slugs.
+     *
+     * @return list<string>
+     */
+    public function reservedPathPrefixes(): array
+    {
+        return array_map(Str::lower(...), config('tenancy.reserved_path_prefixes', []));
+    }
+
     /**
      * @return list<string>
      */

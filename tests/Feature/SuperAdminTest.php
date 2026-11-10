@@ -53,7 +53,9 @@ class SuperAdminTest extends TestCase
 
     private function tenantUrl(Tenant $tenant, string $path = '/'): string
     {
-        return 'http://'.$tenant->subdomainHost().'/'.ltrim($path, '/');
+        $path = ltrim($path, '/');
+
+        return 'http://localhost/'.$tenant->slug.($path !== '' ? '/'.$path : '');
     }
 
     private function inTenant(Tenant $tenant, callable $callback): mixed

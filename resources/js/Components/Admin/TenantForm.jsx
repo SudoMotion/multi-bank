@@ -55,7 +55,7 @@ export default function TenantForm({
         }
     };
 
-    const subdomainHost = `${data.slug || 'your-bank'}.${baseDomain}`;
+    const pathUrl = `/${data.slug || 'your-bank'}`;
 
     return (
         <AdminForm onSubmit={onSubmit} className="space-y-4">
@@ -101,8 +101,8 @@ export default function TenantForm({
             </Card>
 
             <Card
-                title="Domain"
-                description="Every bank gets a subdomain. A custom domain is optional and must point (DNS) to this server."
+                title="Public URL"
+                description="Each bank is served under its slug on the platform domain. A custom domain is optional."
             >
                 <AdminFormGrid>
                     <div className="sm:col-span-2">
@@ -119,7 +119,7 @@ export default function TenantForm({
                         />
                         {!errors.slug && (
                             <p className="mt-1.5 text-xs text-neutral-500">
-                                Subdomain: <span className="font-mono">{subdomainHost}</span>
+                                Path: <span className="font-mono">{pathUrl}</span>
                             </p>
                         )}
                     </div>

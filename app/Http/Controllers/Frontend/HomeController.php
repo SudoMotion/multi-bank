@@ -27,7 +27,11 @@ class HomeController extends Controller
             ];
 
             if ($theme === 'rbc') {
-                $props = array_merge($props, RbcHomeContent::marketing());
+                $marketing = RbcHomeContent::marketing();
+                if ($tenant && ! filled($tenant->domain)) {
+                    $marketing = $this->prefixMarketingPaths($marketing, $tenant->pathPrefix());
+                }
+                $props = array_merge($props, $marketing);
             }
 
             return Inertia::render('Frontend/BankHome/Index', $props);
@@ -56,5 +60,24 @@ class HomeController extends Controller
             ])
             ->values()
             ->all();
+    }
+
+    /**
+     * @param  array{sliders: list<array<string, mixed>>, blogs: list<array<string, mixed>>, awards: list<array<string, mixed>>}  $marketing
+     * @return array{sliders: list<array<string, mixed>>, blogs: list<array<string, mixed>>, awards: list<array<string, mixed>>}
+     */
+    private function prefixMarketingPaths(array $marketing, string $prefix): array
+    {
+        foreach ($marketing['sliders'] as &$slider) {
+            foreach ($slider['buttons'] as &$button) {
+                $url = $button['url'] ?? '';
+                if ($url !== '' && str_starts_with($url, '/') && ! str_starts_with($url, $prefix)) {
+                    $button['url'] = $prefix.$url;
+                }
+            }
+        }
+        unset($slider, $button);
+
+        return $marketing;
     }
 }

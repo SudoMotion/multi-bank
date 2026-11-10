@@ -12,18 +12,17 @@ return [
     | Any other host is treated as a tenant (bank) host.
     |
     */
-    'central_domains' => array_values(array_filter(array_map(
+    'central_domains' => array_values(array_filter(array_unique(array_map(
         'trim',
-        explode(',', (string) env('TENANCY_CENTRAL_DOMAINS', $appHost.',localhost')),
-    ))),
+        explode(',', (string) env('TENANCY_CENTRAL_DOMAINS', $appHost.',localhost,127.0.0.1')),
+    )))),
 
     /*
     |--------------------------------------------------------------------------
     | Base Domain
     |--------------------------------------------------------------------------
     |
-    | Banks are reachable at "{slug}.{base_domain}". Locally "*.localhost"
-    | resolves to 127.0.0.1 in modern browsers, so no hosts file is needed.
+    | Legacy subdomains "{slug}.{base_domain}" redirect to "{app_url}/{slug}".
     |
     */
     'base_domain' => env('TENANCY_BASE_DOMAIN', 'localhost'),
@@ -34,6 +33,27 @@ return [
     |--------------------------------------------------------------------------
     */
     'reserved_slugs' => ['www', 'admin', 'api', 'app', 'mail', 'static', 'assets', 'cdn'],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reserved Path Prefixes (central host)
+    |--------------------------------------------------------------------------
+    |
+    | First path segment values that are not looked up as bank slugs on the
+    | central domain (for example /admin/platform).
+    |
+    */
+    'reserved_path_prefixes' => [
+        'admin',
+        'api',
+        'sanctum',
+        'up',
+        'storage',
+        'build',
+        'vendor',
+        'livewire',
+        '_debugbar',
+    ],
 
     /*
     |--------------------------------------------------------------------------

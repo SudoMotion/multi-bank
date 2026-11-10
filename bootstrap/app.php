@@ -64,9 +64,11 @@ return Application::configure(basePath: dirname(__DIR__))
             return route('admin.login');
         });
 
-        $middleware->web(prepend: [
+        $middleware->prepend([
             IdentifyTenant::class,
-        ], append: [
+        ]);
+
+        $middleware->web(append: [
             EnsureUserBelongsToTenant::class,
             EnsureCustomerBelongsToTenant::class,
             HandleInertiaRequests::class,

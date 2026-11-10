@@ -1,7 +1,7 @@
 import { usePage } from '@inertiajs/react';
 
 /**
- * Current bank for this host, or null on the central platform domain.
+ * Current bank for this request (path prefix or custom domain), or null on the platform home.
  */
 export function useTenant() {
     return usePage().props.tenant ?? null;

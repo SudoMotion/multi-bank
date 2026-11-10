@@ -69,16 +69,26 @@ class Tenant extends Model
 
     public function primaryHost(): string
     {
-        return $this->domain ?: $this->subdomainHost();
+        return $this->domain ?: parse_url((string) config('app.url'), PHP_URL_HOST) ?: 'localhost';
+    }
+
+    public function pathPrefix(): string
+    {
+        return '/'.$this->slug;
     }
 
     public function url(string $path = '/'): string
     {
-        $appUrl = parse_url((string) config('app.url'));
-        $scheme = $appUrl['scheme'] ?? 'http';
-        $port = isset($appUrl['port']) && ! $this->domain ? ':'.$appUrl['port'] : '';
+        $path = ltrim($path, '/');
 
-        return $scheme.'://'.$this->primaryHost().$port.'/'.ltrim($path, '/');
+        if (filled($this->domain)) {
+            $appUrl = parse_url((string) config('app.url'));
+            $scheme = $appUrl['scheme'] ?? 'http';
+
+            return $scheme.'://'.$this->domain.'/'.ltrim($path, '/');
+        }
+
+        return rtrim((string) config('app.url'), '/').'/'.$this->slug.($path !== '' ? '/'.$path : '');
     }
 
     public function logoUrl(): ?string

@@ -38,7 +38,9 @@ class TenancyTest extends TestCase
 
     private function tenantUrl(Tenant $tenant, string $path = '/'): string
     {
-        return 'http://'.$tenant->subdomainHost().'/'.ltrim($path, '/');
+        $path = ltrim($path, '/');
+
+        return 'http://localhost/'.$tenant->slug.($path !== '' ? '/'.$path : '');
     }
 
     /**
@@ -79,7 +81,7 @@ class TenancyTest extends TestCase
                 ->where('banks.0.name', 'Alpha Bank'));
     }
 
-    public function test_subdomain_identifies_the_tenant(): void
+    public function test_path_prefix_identifies_the_tenant(): void
     {
         $tenant = $this->tenant('alpha');
 
@@ -89,6 +91,14 @@ class TenancyTest extends TestCase
                 ->component('Frontend/BankHome/Index')
                 ->where('tenant.slug', 'alpha')
                 ->where('site.name', 'Alpha Bank'));
+    }
+
+    public function test_subdomain_redirects_to_path_url(): void
+    {
+        $tenant = $this->tenant('alpha');
+
+        $this->get('http://'.$tenant->subdomainHost().'/login')
+            ->assertRedirect($tenant->url('login'));
     }
 
     public function test_custom_domain_identifies_the_tenant(): void
@@ -104,7 +114,7 @@ class TenancyTest extends TestCase
     {
         $inactive = $this->tenant('beta', ['is_active' => false]);
 
-        $this->get('http://missing.localhost/')->assertNotFound();
+        $this->get('http://localhost/missing/')->assertNotFound();
         $this->get('http://unknown-domain.test/')->assertNotFound();
         $this->get($this->tenantUrl($inactive))->assertStatus(503);
     }
