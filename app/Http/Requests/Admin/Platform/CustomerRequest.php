@@ -4,9 +4,12 @@ namespace App\Http\Requests\Admin\Platform;
 
 use App\Models\Customer;
 use App\Models\Tenant;
+use App\Support\Money;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
+
 class CustomerRequest extends FormRequest
 {
     public function authorize(): bool
@@ -22,6 +25,13 @@ class CustomerRequest extends FormRequest
 
         if ($this->has('account_number')) {
             $payload['account_number'] = preg_replace('/\D/', '', (string) $this->input('account_number'));
+        }
+
+        if ($this->has('account_assignments')) {
+            $payload['account_assignments'] = collect($this->input('account_assignments', []))
+                ->filter(fn ($row) => filled($row['account_id'] ?? null))
+                ->values()
+                ->all();
         }
 
         $this->merge($payload);
@@ -60,14 +70,35 @@ class CustomerRequest extends FormRequest
                 'digits:16',
                 Rule::unique('customers', 'customer_number')->ignore($customerId),
             ];
-            $rules['account_ids'] = ['nullable', 'array'];
-            $rules['account_ids.*'] = [
-                'integer',
-                Rule::exists('accounts', 'id')->where('tenant_id', $tenant->id),
-            ];
         }
 
+        $rules['account_assignments'] = ['nullable', 'array'];
+        $rules['account_assignments.*.account_id'] = [
+            'required',
+            'integer',
+            Rule::exists('accounts', 'id')->where('tenant_id', $tenant->id),
+        ];
+        $rules['account_assignments.*.opening_amount'] = [
+            'required',
+            'string',
+            'regex:'.Money::DECIMAL_PATTERN,
+        ];
+
         return $rules;
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator) {
+            $rows = collect($this->input('account_assignments', []))
+                ->filter(fn ($row) => filled($row['account_id'] ?? null));
+
+            $duplicateIds = $rows->pluck('account_id')->duplicates();
+
+            if ($duplicateIds->isNotEmpty()) {
+                $validator->errors()->add('account_assignments', 'Each account can only be selected once.');
+            }
+        });
     }
 
     /**

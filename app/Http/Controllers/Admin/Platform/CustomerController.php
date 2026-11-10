@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers\Admin\Platform;
 
+use App\Banking\LedgerException;
+use App\Banking\LedgerService;
 use App\Http\Requests\Admin\Platform\CustomerRequest;
+use App\Support\Money;
+use Illuminate\Validation\ValidationException;
 use App\Http\Requests\Admin\Platform\UpdateCustomerPasswordRequest;
 use App\Models\Account;
 use App\Models\Transaction;
@@ -59,12 +63,22 @@ class CustomerController extends BankWorkspaceController
     {
         return $this->render($tenant, 'customers', 'Admin/Platform/Banks/Customers/Create', [
             'statuses' => $this->options(Customer::STATUSES),
+            'accountOptions' => $this->inBank($tenant, fn () => $this->accountOptionsForCustomerForm()),
         ]);
     }
 
     public function store(CustomerRequest $request, Tenant $tenant): RedirectResponse
     {
-        $customer = $this->inBank($tenant, fn () => Customer::create($request->customerAttributes()));
+        $customer = $this->inBank($tenant, function () use ($request) {
+            $customer = Customer::create($request->customerAttributes());
+            $this->syncCustomerAccountAssignments(
+                $customer,
+                $request->validated('account_assignments', []),
+                $request->user(),
+            );
+
+            return $customer;
+        });
 
         return redirect()
             ->route('admin.platform.banks.customers.show', [$tenant, $customer->id])
@@ -159,18 +173,12 @@ class CustomerController extends BankWorkspaceController
             return [
                 'customer' => [
                     ...$this->present($model),
-                    'account_ids' => $model->accounts->pluck('id')->all(),
+                    'account_assignments' => $model->accounts->map(fn (Account $account) => [
+                        'account_id' => (string) $account->id,
+                        'opening_amount' => Money::toDecimal($account->balance),
+                    ])->all(),
                 ],
-                'accountOptions' => Account::query()
-                    ->orderBy('name')
-                    ->orderBy('id')
-                    ->get()
-                    ->map(fn (Account $account) => [
-                        'id' => $account->id,
-                        'label' => $account->label(),
-                        'status' => $account->status,
-                    ])
-                    ->all(),
+                'accountOptions' => $this->accountOptionsForCustomerForm(),
             ];
         });
 
@@ -185,7 +193,11 @@ class CustomerController extends BankWorkspaceController
         $model = $this->inBank($tenant, function () use ($request, $customer) {
             $model = Customer::query()->findOrFail($customer);
             $model->update($request->customerAttributes());
-            $this->syncCustomerAccounts($model, $request->validated('account_ids', []));
+            $this->syncCustomerAccountAssignments(
+                $model,
+                $request->validated('account_assignments', []),
+                $request->user(),
+            );
 
             return $model;
         });
@@ -228,22 +240,76 @@ class CustomerController extends BankWorkspaceController
     }
 
     /**
-     * @param  list<int|string|null>  $accountIds
+     * @param  list<array{account_id?: int|string|null, opening_amount?: string|null}>  $assignments
      */
-    private function syncCustomerAccounts(Customer $customer, array $accountIds): void
+    private function syncCustomerAccountAssignments(Customer $customer, array $assignments, $actor = null): void
     {
-        $accountIds = collect($accountIds)
-            ->map(fn ($id) => (int) $id)
-            ->filter()
-            ->unique()
-            ->values()
-            ->all();
+        $rows = collect($assignments)
+            ->filter(fn (array $row) => filled($row['account_id'] ?? null))
+            ->map(fn (array $row) => [
+                'account_id' => (int) $row['account_id'],
+                'opening_amount' => (string) ($row['opening_amount'] ?? '0'),
+            ]);
+
+        $previousIds = $customer->accounts()->pluck('accounts.id');
+        $newIds = $rows->pluck('account_id')->unique()->values();
 
         $customer->accounts()->sync(
-            collect($accountIds)->mapWithKeys(fn (int $id) => [
+            $newIds->mapWithKeys(fn (int $id) => [
                 $id => ['tenant_id' => $customer->tenant_id],
             ])->all(),
         );
+
+        $newlyAttached = $newIds->diff($previousIds);
+
+        if ($newlyAttached->isEmpty()) {
+            return;
+        }
+
+        $ledger = app(LedgerService::class);
+
+        foreach ($rows as $row) {
+            if (! $newlyAttached->contains($row['account_id'])) {
+                continue;
+            }
+
+            $amount = Money::toMinor($row['opening_amount']);
+
+            if ($amount <= 0) {
+                continue;
+            }
+
+            $account = Account::query()->find($row['account_id']);
+
+            if ($account === null) {
+                continue;
+            }
+
+            try {
+                $ledger->deposit($account, $amount, 'Opening balance', $actor);
+            } catch (LedgerException $exception) {
+                throw ValidationException::withMessages([
+                    'account_assignments' => $exception->getMessage(),
+                ]);
+            }
+        }
+    }
+
+    /**
+     * @return list<array{id: int, label: string, status: string}>
+     */
+    private function accountOptionsForCustomerForm(): array
+    {
+        return Account::query()
+            ->orderBy('name')
+            ->orderBy('id')
+            ->get()
+            ->map(fn (Account $account) => [
+                'id' => $account->id,
+                'label' => $account->label(),
+                'status' => $account->status,
+            ])
+            ->all();
     }
 
     /**

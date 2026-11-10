@@ -1,6 +1,8 @@
 import { AdminForm, AdminFormGrid } from '@/Components/Admin/AdminForm';
-import { Alert, Button, Card, Checkbox, Input, Select, Textarea } from '@/Components/UI';
+import { Alert, Button, Card, Input, RemoveAction, Select, Textarea } from '@/Components/UI';
 import { Link } from '@inertiajs/react';
+
+const emptyAssignment = () => ({ account_id: '', opening_amount: '' });
 
 export default function CustomerForm({
     form,
@@ -10,16 +12,38 @@ export default function CustomerForm({
     submitLabel,
     accountNumberEditable = false,
     accountOptions = [],
+    showAccountAssignments = false,
 }) {
     const { data, setData, processing, errors } = form;
 
-    const toggleAccount = (accountId, checked) => {
-        const ids = data.account_ids ?? [];
-        setData(
-            'account_ids',
-            checked ? [...ids, accountId] : ids.filter((id) => id !== accountId),
-        );
+    const assignments = data.account_assignments ?? [];
+
+    const selectOptions = accountOptions.map((option) => ({
+        value: String(option.id),
+        label: `${option.label} (${option.status})`,
+    }));
+
+    const setAssignments = (next) => setData('account_assignments', next);
+
+    const updateAssignment = (index, field, value) => {
+        const next = [...assignments];
+        next[index] = { ...next[index], [field]: value };
+        setAssignments(next);
     };
+
+    const addAssignment = () => setAssignments([...assignments, emptyAssignment()]);
+
+    const removeAssignment = (index) => {
+        if (assignments.length <= 1) {
+            setAssignments([emptyAssignment()]);
+            return;
+        }
+        setAssignments(assignments.filter((_, i) => i !== index));
+    };
+
+    const assignmentError =
+        errors.account_assignments ||
+        Object.keys(errors).find((key) => key.startsWith('account_assignments.'));
 
     return (
         <AdminForm onSubmit={onSubmit} className="space-y-4">
@@ -106,35 +130,72 @@ export default function CustomerForm({
                 </AdminFormGrid>
             </Card>
 
-            {accountOptions.length > 0 && (
+            {showAccountAssignments && (
                 <Card
                     title="Assign accounts"
-                    description="Select product accounts this customer may use. The same account can be assigned to multiple customers."
+                    description="Link product accounts to this customer. Opening balance is posted only when an account is newly assigned."
                 >
-                    <div className="flex gap-3">
-                        {accountOptions.map((option) => (
-                            <Checkbox
-                                key={option.id}
-                                id={`account_${option.id}`}
-                                label={`${option.label} (${option.status})`}
-                                checked={(data.account_ids ?? []).includes(option.id)}
-                                onChange={(e) => toggleAccount(option.id, e.target.checked)}
-                            />
-                        ))}
-                    </div>
-                    {errors.account_ids && (
+                    {accountOptions.length === 0 ? (
+                        <p className="text-sm text-neutral-600">
+                            No product accounts exist yet. Create one under Accounts, then assign it here.
+                        </p>
+                    ) : (
+                        <div className="space-y-4">
+                            {assignments.map((row, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex flex-col gap-3 sm:flex-row sm:items-end"
+                                    >
+                                        <Select
+                                            id={`account_assignments_${index}_account_id`}
+                                            label={index === 0 ? 'Account' : null}
+                                            required
+                                            placeholder="Select account"
+                                            wrapperClassName="min-w-0 flex-1"
+                                            options={selectOptions}
+                                            value={row.account_id}
+                                            error={errors[`account_assignments.${index}.account_id`]}
+                                            onChange={(e) =>
+                                                updateAssignment(index, 'account_id', e.target.value)
+                                            }
+                                        />
+                                        <Input
+                                            id={`account_assignments_${index}_opening_amount`}
+                                            label={index === 0 ? 'Balance' : null}
+                                            required
+                                            inputMode="decimal"
+                                            placeholder="0.00"
+                                            wrapperClassName="w-full sm:w-36"
+                                            value={row.opening_amount}
+                                            error={errors[`account_assignments.${index}.opening_amount`]}
+                                            onChange={(e) =>
+                                                updateAssignment(index, 'opening_amount', e.target.value)
+                                            }
+                                        />
+                                        <RemoveAction
+                                            title="Remove account"
+                                            className="mb-0.5 shrink-0"
+                                            onClick={() => removeAssignment(index)}
+                                        />
+                                    </div>
+                            ))}
+
+                            <Button type="button" variant="secondary" size="sm" onClick={addAssignment}>
+                                + Add account
+                            </Button>
+
+                            <p className="text-xs text-neutral-500">
+                                Opening balance is deposited only when an account is newly linked to this
+                                customer.
+                            </p>
+                        </div>
+                    )}
+
+                    {assignmentError && (
                         <Alert variant="error" className="mt-4">
-                            {errors.account_ids}
+                            {errors.account_assignments || errors[assignmentError]}
                         </Alert>
                     )}
-                </Card>
-            )}
-
-            {accountNumberEditable && accountOptions.length === 0 && (
-                <Card title="Assign accounts">
-                    <p className="text-sm text-neutral-600">
-                        No product accounts exist yet. Create one under Accounts, then assign it here.
-                    </p>
                 </Card>
             )}
 

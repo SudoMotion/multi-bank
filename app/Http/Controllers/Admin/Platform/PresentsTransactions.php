@@ -32,7 +32,9 @@ trait PresentsTransactions
             'account' => $transaction->account ? [
                 'id' => $transaction->account->id,
                 'label' => $transaction->account->label(),
-                'customer' => $transaction->account->customers->pluck('fullName')->implode(', ') ?: null,
+                'customer' => $transaction->account->customers
+                    ->map(fn ($customer) => $customer->fullName())
+                    ->implode(', ') ?: null,
                 'account_number' => $transaction->account->customers->first()?->accountNumber(),
             ] : null,
             'related_account' => $transaction->relatedAccount?->label(),

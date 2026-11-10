@@ -15,7 +15,10 @@ export default function Edit({ workspace, customer, statuses, accountOptions = [
         date_of_birth: customer.date_of_birth ?? '',
         address: customer.address ?? '',
         status: customer.status,
-        account_ids: customer.account_ids ?? [],
+        account_assignments:
+            customer.account_assignments?.length > 0
+                ? customer.account_assignments
+                : [{ account_id: '', opening_amount: '' }],
     });
 
     const submit = (e) => {
@@ -35,9 +38,10 @@ export default function Edit({ workspace, customer, statuses, accountOptions = [
                 onSubmit={submit}
                 statuses={statuses}
                 cancelHref={showHref}
-                submitLabel="Save customer"
+                submitLabel="Update customer"
                 accountNumberEditable
                 accountOptions={accountOptions}
+                showAccountAssignments
             />
         </BankWorkspaceLayout>
     );
